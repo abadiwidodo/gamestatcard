@@ -11,6 +11,7 @@ function App() {
   const [error, setError] = useState('')
   const [generatedPost, setGeneratedPost] = useState(null)
   const [showSecondaryStats, setShowSecondaryStats] = useState(true)
+  const [gameInfoMode, setGameInfoMode] = useState('both') // 'date', 'opponent', 'both'
   const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
@@ -91,11 +92,33 @@ function App() {
     }
     setGeneratedPost(postData)
     setShowSecondaryStats(true) // Reset to show secondary stats when generating new post
+    setGameInfoMode('both') // Reset to show both date and opponent when generating new post
   }
 
   const removeSecondaryStats = () => {
     if (confirm('Are you sure you want to remove the detailed stats? This action cannot be undone for this post.')) {
       setShowSecondaryStats(false)
+    }
+  }
+
+  const toggleGameInfo = () => {
+    const modes = ['both', 'date', 'opponent']
+    const currentIndex = modes.indexOf(gameInfoMode)
+    const nextIndex = (currentIndex + 1) % modes.length
+    setGameInfoMode(modes[nextIndex])
+  }
+
+  const getGameInfoContent = () => {
+    if (!generatedPost) return ''
+    
+    switch (gameInfoMode) {
+      case 'date':
+        return generatedPost.date
+      case 'opponent':
+        return generatedPost.opponent.toUpperCase()
+      case 'both':
+      default:
+        return `${generatedPost.date} • ${generatedPost.opponent.toUpperCase()}`
     }
   }
 
@@ -286,7 +309,7 @@ function App() {
                 <div className="ig-post-background">
                   <div className="ig-post-header-info">
                     <h2 className="ig-player-name">{generatedPost.playerName}</h2>
-                    <p className="ig-game-info">{generatedPost.date} • {generatedPost.opponent}</p>
+                    <p className="ig-game-info" onClick={toggleGameInfo}>{getGameInfoContent()}</p>
                   </div>
                   
                   <div className="ig-stats-display">
@@ -332,6 +355,7 @@ function App() {
                 </button>
                 <p className="post-note">Click "Save as PNG" to download the image</p>
                 <p className="post-note">💡 Tip: Click the detailed stats to remove them permanently</p>
+                <p className="post-note">🔄 Tip: Click the game info to toggle date/opponent display</p>
               </div>
             </div>
           </div>
