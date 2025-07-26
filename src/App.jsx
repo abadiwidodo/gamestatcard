@@ -19,6 +19,8 @@ function App() {
   const [isDraggingBackground, setIsDraggingBackground] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [editHistory, setEditHistory] = useState([])
+  const [playerNameFont, setPlayerNameFont] = useState('Inter')
+  const [showFontSelector, setShowFontSelector] = useState(false)
   const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
@@ -101,6 +103,8 @@ function App() {
     setShowSecondaryStats(true) // Reset to show secondary stats when generating new post
     setGameInfoMode('both') // Reset to show both date and opponent when generating new post
     setGameInfoPosition('header') // Reset to header position when generating new post
+    setPlayerNameFont('Inter') // Reset to default font when generating new post
+    setShowFontSelector(false) // Hide font selector when generating new post
     setEditHistory([]) // Reset edit history for new post
     addToEditHistory('Post Generated', `Created IG post for ${playerName} - ${game.date}`)
   }
@@ -275,6 +279,17 @@ function App() {
     const newScale = parseFloat(e.target.value)
     setBackgroundScale(newScale)
     addToEditHistory('Background Scale Changed', `Scaled to ${newScale.toFixed(1)}x`)
+  }
+
+  const handleFontChange = (e) => {
+    const newFont = e.target.value
+    setPlayerNameFont(newFont)
+    setShowFontSelector(false) // Hide selector after selection
+    addToEditHistory('Player Name Font Changed', `Changed font to: ${newFont}`)
+  }
+
+  const toggleFontSelector = () => {
+    setShowFontSelector(!showFontSelector)
   }
 
   const saveAsPNG = async () => {
@@ -497,6 +512,7 @@ Total Edits: ${editHistory.length}
                 />
                 📷 Add Background Image
               </label>
+              
               {backgroundImage && (
                 <>
                   <button onClick={removeBackgroundImage} className="remove-bg-btn">
@@ -526,11 +542,13 @@ Total Edits: ${editHistory.length}
                   onMouseMove={handleBackgroundMouseMove}
                   onMouseUp={handleBackgroundMouseUp}
                   onMouseLeave={handleBackgroundMouseUp}
-                  style={{
-                    backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+                  style={backgroundImage ? {
+                    backgroundImage: `url(${backgroundImage})`,
                     backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px`,
                     backgroundSize: `${100 * backgroundScale}%`,
-                    cursor: backgroundImage ? (isDraggingBackground ? 'grabbing' : 'grab') : 'default'
+                    cursor: isDraggingBackground ? 'grabbing' : 'grab'
+                  } : {
+                    cursor: 'default'
                   }}
                 >
                   <div 
@@ -540,7 +558,32 @@ Total Edits: ${editHistory.length}
                     onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, 'header')}
                   >
-                    <h2 className="ig-player-name">{generatedPost.playerName}</h2>
+                    <div className="player-name-container">
+                      <h2 
+                        className="ig-player-name clickable-player-name" 
+                        style={{ fontFamily: playerNameFont }}
+                        onClick={toggleFontSelector}
+                        title="Click to change font"
+                      >
+                        {generatedPost.playerName}
+                      </h2>
+                      {showFontSelector && (
+                        <div className="font-selector-dropdown">
+                          <select value={playerNameFont} onChange={handleFontChange} autoFocus>
+                            <option value="Inter">Inter (Default)</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Helvetica">Helvetica</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Impact">Impact</option>
+                            <option value="Trebuchet MS">Trebuchet MS</option>
+                            <option value="Arial Black">Arial Black</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
                     {gameInfoPosition === 'header' && renderGameInfo()}
                   </div>
                   
@@ -635,6 +678,7 @@ Total Edits: ${editHistory.length}
                 <p className="post-note">💡 Tip: Click the detailed stats to remove them permanently</p>
                 <p className="post-note">🔄 Tip: Click the game info to toggle date/opponent display</p>
                 <p className="post-note">⟷ Tip: Drag the game info between sections (header ↔ stats ↔ bottom)</p>
+                <p className="post-note">🎨 Tip: Click the player name to change font style</p>
               </div>
             </div>
           </div>
