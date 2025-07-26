@@ -1,9 +1,9 @@
 {
-  "name": "nba-stats-tracker",
+  "name": "gamestatcard",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "A modern React app for searching NBA players and viewing their game statistics",
+  "description": "Create stunning NBA player stat cards for social media posts",
   "scripts": {
     "dev": "vite",
     "start": "vite",

@@ -1,18 +1,20 @@
-# 🏀 NBA Stats Tracker
+# 🏀 GameStatCard
 
-A modern React web application for searching NBA players and viewing their last 5 game statistics. Built with React, Vite, and styled with modern CSS.
+A modern React web application for creating stunning NBA player stat cards for social media posts. Built with React, Vite, and styled with modern CSS.
 
 ## ✨ Features
 
 - **Player Search**: Search for NBA players by name with autocomplete suggestions
+- **Instagram Post Generator**: Create beautiful stat cards for social media
+- **Interactive Design**: Drag & drop elements, change fonts, add backgrounds
+- **Community Gallery**: Browse stat cards created by the community with #ae5history
 - **Game Statistics**: View detailed stats from the last 5 games including:
   - Points, Rebounds, Assists
   - Steals, Blocks, Field Goal Percentage
   - Minutes played
-- **Statistical Averages**: Calculated averages for recent performance
+- **Export Features**: Save as PNG with edit history tracking
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
 - **Modern UI**: Clean, professional interface with smooth animations
-- **Real-time Loading**: Loading states and error handling for better UX
 
 ## 🚀 Getting Started
 
