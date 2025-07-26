@@ -527,7 +527,7 @@ body {
 .header {
   background: #333333;
   border-bottom: 1px solid #4b5563;
-  padding: 0.75rem 0;
+  padding: 0.5rem 0;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
 }
 
@@ -666,6 +666,11 @@ body {
   
   .header-content {
     padding: 0 1rem;
+    text-align: left;
+  }
+  
+  .logo {
+    justify-content: flex-start;
   }
   
   .logo h1 {
@@ -681,7 +686,7 @@ body {
 .logo {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
   gap: 1rem;
   margin-bottom: 0rem;
   cursor: pointer;
