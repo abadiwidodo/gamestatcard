@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Search, User, Calendar, TrendingUp, Activity } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Search, User, Calendar, TrendingUp, Activity, Download } from 'lucide-react'
+import html2canvas from 'html2canvas'
 import './App.css'
 
 function App() {
@@ -8,6 +9,8 @@ function App() {
   const [gameStats, setGameStats] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [generatedPost, setGeneratedPost] = useState(null)
+  const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
   const mockPlayers = [
@@ -69,6 +72,47 @@ function App() {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch()
+    }
+  }
+
+  const generateIGPost = (game, playerName) => {
+    const postData = {
+      playerName,
+      date: game.date,
+      opponent: game.opponent,
+      points: game.points,
+      rebounds: game.rebounds,
+      assists: game.assists,
+      steals: game.steals,
+      blocks: game.blocks,
+      fgPercentage: game.fgPercentage,
+      minutes: game.minutes
+    }
+    setGeneratedPost(postData)
+  }
+
+  const closePost = () => {
+    setGeneratedPost(null)
+  }
+
+  const saveAsPNG = async () => {
+    if (postRef.current) {
+      try {
+        const canvas = await html2canvas(postRef.current, {
+          backgroundColor: null,
+          scale: 2, // Higher quality
+          useCORS: true,
+          allowTaint: true
+        })
+        
+        const link = document.createElement('a')
+        link.download = `${generatedPost.playerName.replace(/\s+/g, '_')}_stats_${generatedPost.date.replace(/\//g, '-')}.png`
+        link.href = canvas.toDataURL()
+        link.click()
+      } catch (error) {
+        console.error('Error saving image:', error)
+        alert('Error saving image. Please try again.')
+      }
     }
   }
 
@@ -154,6 +198,7 @@ function App() {
                       <th>BLK</th>
                       <th>FG%</th>
                       <th>MIN</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -168,6 +213,14 @@ function App() {
                         <td>{game.blocks}</td>
                         <td>{game.fgPercentage}</td>
                         <td>{game.minutes}</td>
+                        <td>
+                          <button 
+                            onClick={() => generateIGPost(game, selectedPlayer.name)}
+                            className="generate-button"
+                          >
+                            Generate
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -210,6 +263,69 @@ function App() {
           </div>
         )}
       </main>
+
+      {/* Instagram Post Generator Modal */}
+      {generatedPost && (
+        <div className="post-overlay" onClick={closePost}>
+          <div className="post-container" onClick={(e) => e.stopPropagation()}>
+            <div className="post-header">
+              <h3>Instagram Post Preview</h3>
+              <button onClick={closePost} className="close-button">×</button>
+            </div>
+            
+            <div className="ig-post">
+              <div className="ig-post-content" ref={postRef}>
+                <div className="ig-post-background">
+                  <div className="ig-post-header-info">
+                    <h2 className="ig-player-name">{generatedPost.playerName}</h2>
+                    <p className="ig-game-info">{generatedPost.date} • {generatedPost.opponent}</p>
+                  </div>
+                  
+                  <div className="ig-stats-display">
+                    <div className="ig-main-stats">
+                      <div className="ig-stat-item">
+                        <span className="ig-stat-value">{generatedPost.points}</span>
+                        <span className="ig-stat-label">POINTS</span>
+                      </div>
+                      <div className="ig-stat-item">
+                        <span className="ig-stat-value">{generatedPost.rebounds}</span>
+                        <span className="ig-stat-label">REBOUNDS</span>
+                      </div>
+                      <div className="ig-stat-item">
+                        <span className="ig-stat-value">{generatedPost.assists}</span>
+                        <span className="ig-stat-label">ASSISTS</span>
+                      </div>
+                    </div>
+                    
+                    <div className="ig-secondary-stats">
+                      <div className="ig-secondary-stat">
+                        <span>{generatedPost.steals} STL</span>
+                      </div>
+                      <div className="ig-secondary-stat">
+                        <span>{generatedPost.blocks} BLK</span>
+                      </div>
+                      <div className="ig-secondary-stat">
+                        <span>{generatedPost.fgPercentage} FG%</span>
+                      </div>
+                      <div className="ig-secondary-stat">
+                        <span>{generatedPost.minutes} MIN</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="post-actions">
+                <button onClick={saveAsPNG} className="save-button">
+                  <Download size={16} />
+                  Save as PNG
+                </button>
+                <p className="post-note">Click "Save as PNG" to download the image</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
