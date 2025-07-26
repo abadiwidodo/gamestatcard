@@ -12,6 +12,7 @@ function App() {
   const [generatedPost, setGeneratedPost] = useState(null)
   const [showSecondaryStats, setShowSecondaryStats] = useState(true)
   const [gameInfoMode, setGameInfoMode] = useState('both') // 'date', 'opponent', 'both'
+  const [gameInfoPosition, setGameInfoPosition] = useState('header') // 'header', 'top-stats', 'bottom-stats'
   const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
@@ -93,6 +94,7 @@ function App() {
     setGeneratedPost(postData)
     setShowSecondaryStats(true) // Reset to show secondary stats when generating new post
     setGameInfoMode('both') // Reset to show both date and opponent when generating new post
+    setGameInfoPosition('header') // Reset to header position when generating new post
   }
 
   const removeSecondaryStats = () => {
@@ -121,6 +123,64 @@ function App() {
         return `${generatedPost.date} • ${generatedPost.opponent.toUpperCase()}`
     }
   }
+
+  const handleDragStart = (e) => {
+    e.dataTransfer.setData('text/plain', 'game-info')
+    e.dataTransfer.effectAllowed = 'move'
+    e.target.style.opacity = '0.5'
+    // Add visual feedback to all drop zones
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+      zone.classList.add('drag-active')
+    })
+  }
+
+  const handleDragEnd = (e) => {
+    e.target.style.opacity = '1'
+    // Remove visual feedback from all drop zones
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+      zone.classList.remove('drag-active', 'drag-over')
+    })
+  }
+
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDragEnter = (e) => {
+    e.preventDefault()
+    e.currentTarget.classList.add('drag-over')
+  }
+
+  const handleDragLeave = (e) => {
+    e.preventDefault()
+    // Only remove if we're actually leaving the element (not just entering a child)
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      e.currentTarget.classList.remove('drag-over')
+    }
+  }
+
+  const handleDrop = (e, position) => {
+    e.preventDefault()
+    const data = e.dataTransfer.getData('text/plain')
+    if (data === 'game-info') {
+      setGameInfoPosition(position)
+    }
+    // Clean up visual feedback
+    e.currentTarget.classList.remove('drag-over')
+  }
+
+  const renderGameInfo = () => (
+    <p 
+      className="ig-game-info draggable" 
+      onClick={toggleGameInfo}
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      {getGameInfoContent()}
+    </p>
+  )
 
   const closePost = () => {
     setGeneratedPost(null)
@@ -307,13 +367,30 @@ function App() {
             <div className="ig-post">
               <div className="ig-post-content" ref={postRef}>
                 <div className="ig-post-background">
-                  <div className="ig-post-header-info">
+                  <div 
+                    className="ig-post-header-info drop-zone"
+                    onDragOver={handleDragOver}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, 'header')}
+                  >
                     <h2 className="ig-player-name">{generatedPost.playerName}</h2>
-                    <p className="ig-game-info" onClick={toggleGameInfo}>{getGameInfoContent()}</p>
+                    {gameInfoPosition === 'header' && renderGameInfo()}
                   </div>
                   
                   <div className="ig-stats-display">
-                    <div className="ig-main-stats">
+                    <div 
+                      className="ig-main-stats drop-zone"
+                      onDragOver={handleDragOver}
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, 'top-stats')}
+                    >
+                      {gameInfoPosition === 'top-stats' && (
+                        <div className="game-info-in-stats">
+                          {renderGameInfo()}
+                        </div>
+                      )}
                       <div className="ig-stat-item">
                         <span className="ig-stat-value">{generatedPost.points}</span>
                         <span className="ig-stat-label">POINTS</span>
@@ -344,6 +421,20 @@ function App() {
                         </div>
                       </div>
                     )}
+                    
+                    <div 
+                      className="ig-bottom-section drop-zone"
+                      onDragOver={handleDragOver}
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, 'bottom-stats')}
+                    >
+                      {gameInfoPosition === 'bottom-stats' && (
+                        <div className="game-info-in-bottom">
+                          {renderGameInfo()}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -356,6 +447,7 @@ function App() {
                 <p className="post-note">Click "Save as PNG" to download the image</p>
                 <p className="post-note">💡 Tip: Click the detailed stats to remove them permanently</p>
                 <p className="post-note">🔄 Tip: Click the game info to toggle date/opponent display</p>
+                <p className="post-note">⟷ Tip: Drag the game info between sections (header ↔ stats ↔ bottom)</p>
               </div>
             </div>
           </div>
