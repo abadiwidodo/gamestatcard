@@ -390,6 +390,122 @@ body {
   margin: 0;
 }
 
+.background-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-wrap: wrap;
+}
+
+.upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #3b82f6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.upload-label:hover {
+  background: #2563eb;
+}
+
+.remove-bg-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.remove-bg-btn:hover {
+  background: #dc2626;
+}
+
+.scale-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.scale-control input[type="range"] {
+  width: 100px;
+}
+
+.scale-control span {
+  font-weight: 500;
+  min-width: 35px;
+}
+
+.edit-history {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.edit-history h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.edit-history-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.edit-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.75rem;
+}
+
+.edit-item:last-child {
+  border-bottom: none;
+}
+
+.edit-action {
+  display: block;
+  font-weight: 600;
+  color: #3b82f6;
+  margin-bottom: 0.25rem;
+}
+
+.edit-details {
+  display: block;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.edit-time {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.6875rem;
+}
+
+.more-edits {
+  font-style: italic;
+  color: #64748b;
+  text-align: center;
+  padding: 0.75rem 0;
+}
+
 .close-button {
   background: none;
   border: none;
@@ -422,12 +538,16 @@ body {
   width: 100%;
   height: 100%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 0.75rem 1rem 1rem;
   color: #ffffff;
   position: relative;
+  overflow: hidden;
+  user-select: none;
 }
 
 .ig-post-background::before {

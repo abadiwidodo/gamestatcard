@@ -13,6 +13,12 @@ function App() {
   const [showSecondaryStats, setShowSecondaryStats] = useState(true)
   const [gameInfoMode, setGameInfoMode] = useState('both') // 'date', 'opponent', 'both'
   const [gameInfoPosition, setGameInfoPosition] = useState('header') // 'header', 'top-stats', 'bottom-stats'
+  const [backgroundImage, setBackgroundImage] = useState(null)
+  const [backgroundPosition, setBackgroundPosition] = useState({ x: 0, y: 0 })
+  const [backgroundScale, setBackgroundScale] = useState(1)
+  const [isDraggingBackground, setIsDraggingBackground] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [editHistory, setEditHistory] = useState([])
   const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
@@ -95,11 +101,26 @@ function App() {
     setShowSecondaryStats(true) // Reset to show secondary stats when generating new post
     setGameInfoMode('both') // Reset to show both date and opponent when generating new post
     setGameInfoPosition('header') // Reset to header position when generating new post
+    setEditHistory([]) // Reset edit history for new post
+    addToEditHistory('Post Generated', `Created IG post for ${playerName} - ${game.date}`)
+  }
+
+  // Function to track edits
+  const addToEditHistory = (action, details) => {
+    const timestamp = new Date().toLocaleString()
+    const edit = {
+      id: Date.now(),
+      timestamp,
+      action,
+      details
+    }
+    setEditHistory(prev => [...prev, edit])
   }
 
   const removeSecondaryStats = () => {
     if (confirm('Are you sure you want to remove the detailed stats? This action cannot be undone for this post.')) {
       setShowSecondaryStats(false)
+      addToEditHistory('Secondary Stats Removed', 'Removed detailed statistics (STL, BLK, FG%, MIN)')
     }
   }
 
@@ -107,7 +128,15 @@ function App() {
     const modes = ['both', 'date', 'opponent']
     const currentIndex = modes.indexOf(gameInfoMode)
     const nextIndex = (currentIndex + 1) % modes.length
-    setGameInfoMode(modes[nextIndex])
+    const newMode = modes[nextIndex]
+    setGameInfoMode(newMode)
+    
+    const modeNames = {
+      'both': 'Date & Opponent',
+      'date': 'Date Only',
+      'opponent': 'Opponent Only'
+    }
+    addToEditHistory('Game Info Display Changed', `Changed to show: ${modeNames[newMode]}`)
   }
 
   const getGameInfoContent = () => {
@@ -164,7 +193,15 @@ function App() {
     e.preventDefault()
     const data = e.dataTransfer.getData('text/plain')
     if (data === 'game-info') {
+      const oldPosition = gameInfoPosition
       setGameInfoPosition(position)
+      
+      const positionNames = {
+        'header': 'Header',
+        'top-stats': 'Stats Section', 
+        'bottom-stats': 'Bottom Section'
+      }
+      addToEditHistory('Game Info Moved', `Moved from ${positionNames[oldPosition]} to ${positionNames[position]}`)
     }
     // Clean up visual feedback
     e.currentTarget.classList.remove('drag-over')
@@ -186,6 +223,60 @@ function App() {
     setGeneratedPost(null)
   }
 
+  // Background image handling functions
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setBackgroundImage(event.target.result)
+        setBackgroundPosition({ x: 0, y: 0 })
+        setBackgroundScale(1)
+        addToEditHistory('Background Image Added', `Uploaded: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeBackgroundImage = () => {
+    setBackgroundImage(null)
+    setBackgroundPosition({ x: 0, y: 0 })
+    setBackgroundScale(1)
+    addToEditHistory('Background Image Removed', 'Removed custom background image')
+  }
+
+  const handleBackgroundMouseDown = (e) => {
+    if (!backgroundImage) return
+    e.preventDefault()
+    setIsDraggingBackground(true)
+    setDragStart({
+      x: e.clientX - backgroundPosition.x,
+      y: e.clientY - backgroundPosition.y
+    })
+  }
+
+  const handleBackgroundMouseMove = (e) => {
+    if (!isDraggingBackground || !backgroundImage) return
+    e.preventDefault()
+    setBackgroundPosition({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    })
+  }
+
+  const handleBackgroundMouseUp = () => {
+    if (isDraggingBackground) {
+      addToEditHistory('Background Position Changed', `Repositioned to (${backgroundPosition.x}, ${backgroundPosition.y})`)
+    }
+    setIsDraggingBackground(false)
+  }
+
+  const handleScaleChange = (e) => {
+    const newScale = parseFloat(e.target.value)
+    setBackgroundScale(newScale)
+    addToEditHistory('Background Scale Changed', `Scaled to ${newScale.toFixed(1)}x`)
+  }
+
   const saveAsPNG = async () => {
     if (postRef.current) {
       try {
@@ -197,14 +288,46 @@ function App() {
         })
         
         const link = document.createElement('a')
-        link.download = `${generatedPost.playerName.replace(/\s+/g, '_')}_stats_${generatedPost.date.replace(/\//g, '-')}.png`
+        const filename = `${generatedPost.playerName.replace(/\s+/g, '_')}_stats_${generatedPost.date.replace(/\//g, '-')}`
+        link.download = `${filename}.png`
         link.href = canvas.toDataURL()
         link.click()
+
+        // Save edit history as text file
+        addToEditHistory('Image Saved', `Exported as PNG: ${filename}.png`)
+        saveEditHistory(filename)
+        
       } catch (error) {
         console.error('Error saving image:', error)
         alert('Error saving image. Please try again.')
       }
     }
+  }
+
+  const saveEditHistory = (filename) => {
+    if (editHistory.length === 0) return
+
+    const historyText = `NBA Stats IG Card - Edit History
+Generated: ${new Date().toLocaleString()}
+Player: ${generatedPost.playerName}
+Game Date: ${generatedPost.date}
+Stats: ${generatedPost.points}pts, ${generatedPost.rebounds}reb, ${generatedPost.assists}ast
+
+=== EDIT HISTORY ===
+${editHistory.map((edit, index) => 
+  `${index + 1}. [${edit.timestamp}] ${edit.action}
+   ${edit.details}`
+).join('\n\n')}
+
+Total Edits: ${editHistory.length}
+`
+
+    const blob = new Blob([historyText], { type: 'text/plain' })
+    const link = document.createElement('a')
+    link.download = `${filename}_edit_history.txt`
+    link.href = URL.createObjectURL(blob)
+    link.click()
+    URL.revokeObjectURL(link.href)
   }
 
   return (
@@ -213,9 +336,9 @@ function App() {
         <div className="header-content">
           <div className="logo">
             <Activity className="logo-icon" />
-            <h1>NBA Stats Tracker</h1>
+            <h1>GAME STAT CARD</h1>
           </div>
-          <p className="subtitle">Search for NBA players and view their last 5 game statistics</p>
+          <p className="subtitle">Generate NBA players game stat card for social media posts</p>
         </div>
       </header>
 
@@ -364,9 +487,52 @@ function App() {
               <button onClick={closePost} className="close-button">×</button>
             </div>
             
+            <div className="background-controls">
+              <label className="upload-label">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleImageUpload}
+                  style={{ display: 'none' }}
+                />
+                📷 Add Background Image
+              </label>
+              {backgroundImage && (
+                <>
+                  <button onClick={removeBackgroundImage} className="remove-bg-btn">
+                    Remove Background
+                  </button>
+                  <div className="scale-control">
+                    <label>Scale: </label>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="3"
+                      step="0.1"
+                      value={backgroundScale}
+                      onChange={handleScaleChange}
+                    />
+                    <span>{backgroundScale.toFixed(1)}x</span>
+                  </div>
+                </>
+              )}
+            </div>
+            
             <div className="ig-post">
               <div className="ig-post-content" ref={postRef}>
-                <div className="ig-post-background">
+                <div 
+                  className="ig-post-background"
+                  onMouseDown={handleBackgroundMouseDown}
+                  onMouseMove={handleBackgroundMouseMove}
+                  onMouseUp={handleBackgroundMouseUp}
+                  onMouseLeave={handleBackgroundMouseUp}
+                  style={{
+                    backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+                    backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px`,
+                    backgroundSize: `${100 * backgroundScale}%`,
+                    cursor: backgroundImage ? (isDraggingBackground ? 'grabbing' : 'grab') : 'default'
+                  }}
+                >
                   <div 
                     className="ig-post-header-info drop-zone"
                     onDragOver={handleDragOver}
@@ -444,7 +610,28 @@ function App() {
                   <Download size={16} />
                   Save as PNG
                 </button>
-                <p className="post-note">Click "Save as PNG" to download the image</p>
+                
+                {editHistory.length > 0 && (
+                  <div className="edit-history">
+                    <h4>Edit History ({editHistory.length} changes)</h4>
+                    <div className="edit-history-list">
+                      {editHistory.slice(-5).map((edit) => (
+                        <div key={edit.id} className="edit-item">
+                          <span className="edit-action">{edit.action}</span>
+                          <span className="edit-details">{edit.details}</span>
+                          <span className="edit-time">{edit.timestamp}</span>
+                        </div>
+                      ))}
+                      {editHistory.length > 5 && (
+                        <div className="edit-item more-edits">
+                          ... and {editHistory.length - 5} more changes
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                <p className="post-note">Click "Save as PNG" to download the image + edit history</p>
                 <p className="post-note">💡 Tip: Click the detailed stats to remove them permanently</p>
                 <p className="post-note">🔄 Tip: Click the game info to toggle date/opponent display</p>
                 <p className="post-note">⟷ Tip: Drag the game info between sections (header ↔ stats ↔ bottom)</p>
