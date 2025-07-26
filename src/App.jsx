@@ -10,6 +10,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [generatedPost, setGeneratedPost] = useState(null)
+  const [showSecondaryStats, setShowSecondaryStats] = useState(true)
   const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
@@ -89,6 +90,13 @@ function App() {
       minutes: game.minutes
     }
     setGeneratedPost(postData)
+    setShowSecondaryStats(true) // Reset to show secondary stats when generating new post
+  }
+
+  const removeSecondaryStats = () => {
+    if (confirm('Are you sure you want to remove the detailed stats? This action cannot be undone for this post.')) {
+      setShowSecondaryStats(false)
+    }
   }
 
   const closePost = () => {
@@ -297,20 +305,22 @@ function App() {
                       </div>
                     </div>
                     
-                    <div className="ig-secondary-stats">
-                      <div className="ig-secondary-stat">
-                        <span>{generatedPost.steals} STL</span>
+                    {showSecondaryStats && (
+                      <div className="ig-secondary-stats" onClick={removeSecondaryStats}>
+                        <div className="ig-secondary-stat">
+                          <span>{generatedPost.steals} STL</span>
+                        </div>
+                        <div className="ig-secondary-stat">
+                          <span>{generatedPost.blocks} BLK</span>
+                        </div>
+                        <div className="ig-secondary-stat">
+                          <span>{generatedPost.fgPercentage} FG%</span>
+                        </div>
+                        <div className="ig-secondary-stat">
+                          <span>{generatedPost.minutes} MIN</span>
+                        </div>
                       </div>
-                      <div className="ig-secondary-stat">
-                        <span>{generatedPost.blocks} BLK</span>
-                      </div>
-                      <div className="ig-secondary-stat">
-                        <span>{generatedPost.fgPercentage} FG%</span>
-                      </div>
-                      <div className="ig-secondary-stat">
-                        <span>{generatedPost.minutes} MIN</span>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -321,6 +331,7 @@ function App() {
                   Save as PNG
                 </button>
                 <p className="post-note">Click "Save as PNG" to download the image</p>
+                <p className="post-note">💡 Tip: Click the detailed stats to remove them permanently</p>
               </div>
             </div>
           </div>
