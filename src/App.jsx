@@ -843,12 +843,12 @@ Total Edits: ${editHistory.length}
             <div className="ig-posts-gallery">
               <div className="gallery-header">
                 <h3>Community GameStatCard</h3>
-                <div className="gallery-hashtag">
+                {/* <div className="gallery-hashtag">
                   <CreditCard size={16} />
                   #ae5history
-                </div>
+                </div> */}
                 <p className="gallery-description">
-                  Discover amazing stat cards created by our community. Get inspired and create your own unique NBA player cards!
+                  Discover amazing stat cards created by our community. <br/>Get inspired and create your own unique NBA player cards!
                 </p>
               </div>
               
