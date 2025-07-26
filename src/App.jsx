@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Search, User, Calendar, TrendingUp, Activity, Download } from 'lucide-react'
+import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import './App.css'
 
@@ -35,6 +35,109 @@ function App() {
     { id: 6, name: 'Jayson Tatum', team: 'Boston Celtics', position: 'SF' },
     { id: 7, name: 'Joel Embiid', team: 'Philadelphia 76ers', position: 'C' },
     { id: 8, name: 'Nikola Jokić', team: 'Denver Nuggets', position: 'C' },
+  ]
+
+  // Mock IG posts data with #ae5history hashtag
+  const mockIGPosts = [
+    {
+      id: 1,
+      playerName: 'LeBron James',
+      gameInfo: '1/25 • vs Warriors',
+      stats: { points: 32, rebounds: 8, assists: 12 },
+      date: '2 days ago',
+      likes: 1247,
+      comments: 89,
+      shares: 156,
+      photo: '/images/1.jpg' // Your uploaded photo
+    },
+    {
+      id: 2,
+      playerName: 'Stephen Curry',
+      gameInfo: '1/24 • vs Lakers',
+      stats: { points: 28, rebounds: 5, assists: 9 },
+      date: '3 days ago',
+      likes: 892,
+      comments: 67,
+      shares: 112,
+      photo: '/images/2.jpg' // Your uploaded photo
+    },
+    {
+      id: 3,
+      playerName: 'Giannis Antetokounmpo',
+      gameInfo: '1/23 • vs Celtics',
+      stats: { points: 35, rebounds: 14, assists: 6 },
+      date: '4 days ago',
+      likes: 1156,
+      comments: 94,
+      shares: 203,
+      photo: '/images/3.jpg' // Your uploaded photo
+    },
+    {
+      id: 4,
+      playerName: 'Luka Dončić',
+      gameInfo: '1/22 • vs Nuggets',
+      stats: { points: 31, rebounds: 7, assists: 13 },
+      date: '5 days ago',
+      likes: 967,
+      comments: 72,
+      shares: 134,
+      photo: '/images/4.jpg' // Your uploaded photo
+    },
+    {
+      id: 5,
+      playerName: 'Jayson Tatum',
+      gameInfo: '1/21 • vs Heat',
+      stats: { points: 29, rebounds: 9, assists: 8 },
+      date: '6 days ago',
+      likes: 743,
+      comments: 55,
+      shares: 98,
+      photo: '/images/5.jpg' // Your uploaded photo
+    },
+    {
+      id: 6,
+      playerName: 'Joel Embiid',
+      gameInfo: '1/20 • vs Knicks',
+      stats: { points: 38, rebounds: 12, assists: 4 },
+      date: '1 week ago',
+      likes: 1334,
+      comments: 108,
+      shares: 187,
+      photo: '/images/6.jpg' // Your uploaded photo
+    },
+    {
+      id: 7,
+      playerName: 'Kawhi Leonard',
+      gameInfo: '1/19 • vs Suns',
+      stats: { points: 26, rebounds: 6, assists: 5 },
+      date: '1 week ago',
+      likes: 856,
+      comments: 63,
+      shares: 119,
+      photo: '/images/7.jpg' // Your uploaded photo
+    },
+    {
+      id: 8,
+      playerName: 'Anthony Davis',
+      gameInfo: '1/18 • vs Clippers',
+      stats: { points: 33, rebounds: 11, assists: 3 },
+      date: '1 week ago',
+      likes: 1089,
+      comments: 87,
+      shares: 142,
+      photo: '/images/8.jpg' // Your uploaded photo
+    },
+    {
+      id: 9,
+      playerName: 'Damian Lillard',
+      gameInfo: '1/17 • vs Hawks',
+      stats: { points: 41, rebounds: 4, assists: 8 },
+      date: '2 weeks ago',
+      likes: 1456,
+      comments: 124,
+      shares: 198,
+      photo: '/images/9.jpg' // Your uploaded photo
+    }
   ]
 
   // Mock game stats data
@@ -593,25 +696,75 @@ Total Edits: ${editHistory.length}
         )}
 
         {!selectedPlayer && !loading && !error && (
-          <div className="welcome-message">
-            <Activity size={64} className="welcome-icon" />
-            <h3>Welcome to NBA Stats Tracker</h3>
-            <p>Search for your favorite NBA players to view their recent game statistics.</p>
-            <div className="suggested-players">
-              <p>Try searching for:</p>
-              <div className="player-chips">
-                {mockPlayers.slice(0, 4).map(player => (
-                  <button 
-                    key={player.id}
-                    onClick={() => setSearchTerm(player.name)}
-                    className="player-chip"
-                  >
-                    {player.name}
-                  </button>
+          <>
+            <div className="welcome-message">
+              <Activity size={64} className="welcome-icon" />
+              <h3>Welcome to NBA Stats Tracker</h3>
+              <p>Search for your favorite NBA players to view their recent game statistics.</p>
+              <div className="suggested-players">
+                <p>Try searching for:</p>
+                <div className="player-chips">
+                  {mockPlayers.slice(0, 4).map(player => (
+                    <button 
+                      key={player.id}
+                      onClick={() => setSearchTerm(player.name)}
+                      className="player-chip"
+                    >
+                      {player.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="ig-posts-gallery">
+              <div className="gallery-header">
+                <h3>Community GameStatCard</h3>
+                <div className="gallery-hashtag">
+                  <Activity size={16} />
+                  #ae5history
+                </div>
+                <p className="gallery-description">
+                  Discover amazing stat cards created by our community. Get inspired and create your own unique NBA player cards!
+                </p>
+              </div>
+              
+              <div className="posts-grid">
+                {mockIGPosts.map(post => (
+                  <div key={post.id} className="post-card">
+                    <div 
+                      className="post-image-clean"
+                      style={post.photo ? {
+                        backgroundImage: `url(${post.photo})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
+                      } : {}}
+                    >
+                      {/* Clean photo display - no overlays */}
+                    </div>
+                    <div className="post-meta">
+                      <div className="post-date">{post.date}</div>
+                      <div className="post-engagement">
+                        <div className="engagement-item">
+                          <Heart className="engagement-icon" />
+                          <span>{post.likes}</span>
+                        </div>
+                        <div className="engagement-item">
+                          <MessageCircle className="engagement-icon" />
+                          <span>{post.comments}</span>
+                        </div>
+                        <div className="engagement-item">
+                          <Share className="engagement-icon" />
+                          <span>{post.shares}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
-          </div>
+          </>
         )}
       </main>
 
