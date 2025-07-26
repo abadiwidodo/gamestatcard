@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share, LogIn } from 'lucide-react'
+import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share, LogIn, Menu, X } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthModal from './components/AuthModal'
@@ -30,6 +30,7 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState('signin')
   const [showDashboard, setShowDashboard] = useState(false)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
   const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
@@ -591,8 +592,8 @@ Total Edits: ${editHistory.length}
           </div>
           <p className="subtitle">Generate NBA players game stat card for social media posts</p>
           
-          {/* Authentication Controls */}
-          <div className="auth-controls">
+          {/* Desktop Authentication Controls */}
+          <div className="auth-controls desktop-only">
             {user ? (
               <button 
                 onClick={() => setShowDashboard(true)}
@@ -626,6 +627,72 @@ Total Edits: ${editHistory.length}
               </div>
             )}
           </div>
+
+          {/* Mobile Hamburger Menu */}
+          <div className="mobile-menu-controls mobile-only">
+            <button 
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="hamburger-btn"
+              aria-label="Toggle menu"
+            >
+              {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+
+          {/* Mobile Dropdown Menu */}
+          {showMobileMenu && (
+            <>
+              <div 
+                className="mobile-menu-overlay" 
+                onClick={() => setShowMobileMenu(false)}
+              />
+              <div className="mobile-menu-dropdown">
+                {user ? (
+                  <>
+                    <div className="mobile-user-info">
+                      <User size={16} />
+                      <span>{user.email}</span>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setShowDashboard(true)
+                        setShowMobileMenu(false)
+                      }}
+                      className="mobile-menu-item"
+                    >
+                      <Activity size={16} />
+                      Dashboard
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => {
+                        setAuthMode('signin')
+                        setShowAuthModal(true)
+                        setShowMobileMenu(false)
+                      }}
+                      className="mobile-menu-item"
+                    >
+                      <LogIn size={16} />
+                      Sign In
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setAuthMode('signup')
+                        setShowAuthModal(true)
+                        setShowMobileMenu(false)
+                      }}
+                      className="mobile-menu-item"
+                    >
+                      <User size={16} />
+                      Sign Up
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </header>
 
