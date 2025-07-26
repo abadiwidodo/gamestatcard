@@ -525,8 +525,8 @@ body {
 
 /* Header Styles */
 .header {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border-bottom: 1px solid #475569;
+  background: #333333;
+  border-bottom: 1px solid #4b5563;
   padding: 0.75rem 0;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
 }
@@ -684,12 +684,25 @@ body {
   justify-content: center;
   gap: 1rem;
   margin-bottom: 0rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.logo:hover {
+  opacity: 0.8;
 }
 
 .logo-icon {
-  color: #60a5fa;
+  color: #ffffff;
   width: 2.5rem;
   height: 2.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+  padding: 0.5rem;
+  backdrop-filter: blur(10px);
+  font-weight: 900;
+  stroke-width: 3;
 }
 
 .logo h1 {
@@ -725,6 +738,19 @@ body {
 /* Search Section */
 .search-section {
   margin-bottom: 2rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.section-header .subtitle {
+  color: #475569;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0;
 }
 
 .search-container {
@@ -2014,7 +2040,7 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
   .main-content {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 1rem 1rem;
   }
   
   .logo h1 {

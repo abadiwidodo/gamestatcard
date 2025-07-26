@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share, LogIn, Menu, X } from 'lucide-react'
+import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share, LogIn, Menu, X, CreditCard } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthModal from './components/AuthModal'
@@ -582,15 +582,25 @@ Total Edits: ${editHistory.length}
     URL.revokeObjectURL(link.href)
   }
 
+  const resetToHomepage = () => {
+    setSelectedPlayer(null)
+    setGameStats([])
+    setSearchTerm('')
+    setError('')
+    setGeneratedPost(null)
+    setShowDashboard(false)
+    setShowAuthModal(false)
+    setShowMobileMenu(false)
+  }
+
   return (
     <div className="app">
       <header className="header">
         <div className="header-content">
-          <div className="logo">
-            <Activity className="logo-icon" />
+          <div className="logo" onClick={resetToHomepage}>
+            <CreditCard className="logo-icon" />
             <h1>GameStatCard</h1>
           </div>
-          <p className="subtitle">Generate NBA players game stat card for social media posts</p>
           
           {/* Desktop Authentication Controls */}
           <div className="auth-controls desktop-only">
@@ -660,7 +670,7 @@ Total Edits: ${editHistory.length}
                       }}
                       className="mobile-menu-item"
                     >
-                      <Activity size={16} />
+                      <CreditCard size={16} />
                       Dashboard
                     </button>
                   </>
@@ -698,6 +708,9 @@ Total Edits: ${editHistory.length}
 
       <main className="main-content">
         <div className="search-section">
+          <div className="section-header">
+            <p className="subtitle">Generate NBA players game stat card for social media posts</p>
+          </div>
           <div className="search-container">
             <div className="search-box">
               <Search className="search-icon" />
@@ -706,7 +719,7 @@ Total Edits: ${editHistory.length}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Search for NBA player (e.g., LeBron James, Stephen Curry)"
+                placeholder="NBA player (e.g., LeBron James, Stephen Curry)"
                 className="search-input"
                 disabled={loading}
               />
@@ -808,7 +821,7 @@ Total Edits: ${editHistory.length}
         {!selectedPlayer && !loading && !error && (
           <>
             <div className="welcome-message">
-              <Activity size={64} className="welcome-icon" />
+              <CreditCard size={64} className="welcome-icon" />
               <h3>Welcome to NBA Stats Tracker</h3>
               <p>Search for your favorite NBA players to view their recent game statistics.</p>
               <div className="suggested-players">
@@ -831,7 +844,7 @@ Total Edits: ${editHistory.length}
               <div className="gallery-header">
                 <h3>Community GameStatCard</h3>
                 <div className="gallery-hashtag">
-                  <Activity size={16} />
+                  <CreditCard size={16} />
                   #ae5history
                 </div>
                 <p className="gallery-description">
