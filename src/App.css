@@ -512,15 +512,17 @@ body {
 
 /* Enhanced drag feedback */
 .drop-zone.drag-active {
+  border: 2px dashed transparent;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.drop-zone.drag-active:hover {
   border: 2px dashed rgba(255, 255, 255, 0.4);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
 }
 
 .drop-zone.drag-over {
-  border-color: rgba(76, 175, 80, 0.8);
-  background: rgba(76, 175, 80, 0.1);
-  transform: scale(1.02);
+  border: 2px dashed rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .drop-zone.drag-active:not(.ig-bottom-section)::before {
@@ -559,8 +561,15 @@ body {
   top: -10px;
   right: -10px;
   font-size: 0.8rem;
-  opacity: 0.7;
+  opacity: 0;
   z-index: 10;
+  transition: opacity 0.2s ease;
+}
+
+.ig-post-header-info:has(.ig-game-info):hover::after,
+.ig-main-stats:has(.game-info-in-stats):hover::after,
+.ig-bottom-section:has(.game-info-in-bottom):hover::after {
+  opacity: 0.7;
 }
 
 .ig-bottom-section {
@@ -574,7 +583,7 @@ body {
 }
 
 .ig-bottom-section.drop-zone {
-  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border: 2px dashed transparent;
   transition: all 0.3s ease;
 }
 
