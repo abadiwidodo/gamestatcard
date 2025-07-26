@@ -13,6 +13,8 @@ function App() {
   const [showSecondaryStats, setShowSecondaryStats] = useState(true)
   const [gameInfoMode, setGameInfoMode] = useState('both') // 'date', 'opponent', 'both'
   const [gameInfoPosition, setGameInfoPosition] = useState('header') // 'header', 'top-stats', 'bottom-stats'
+  const [playerNamePosition, setPlayerNamePosition] = useState('header') // 'header', 'top-stats', 'bottom-stats'
+  const [elementOrder, setElementOrder] = useState(['player', 'game']) // Controls left-right order
   const [backgroundImage, setBackgroundImage] = useState(null)
   const [backgroundPosition, setBackgroundPosition] = useState({ x: 0, y: 0 })
   const [backgroundScale, setBackgroundScale] = useState(1)
@@ -39,7 +41,7 @@ function App() {
   const generateMockStats = (playerName) => {
     return Array.from({ length: 5 }, (_, index) => ({
       game: index + 1,
-      date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toLocaleDateString(),
+      date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }),
       opponent: `vs ${['Lakers', 'Warriors', 'Celtics', 'Heat', 'Nuggets'][index]}`,
       points: Math.floor(Math.random() * 30) + 15,
       rebounds: Math.floor(Math.random() * 12) + 3,
@@ -103,6 +105,8 @@ function App() {
     setShowSecondaryStats(true) // Reset to show secondary stats when generating new post
     setGameInfoMode('both') // Reset to show both date and opponent when generating new post
     setGameInfoPosition('header') // Reset to header position when generating new post
+    setPlayerNamePosition('header') // Reset player name to header position when generating new post
+    setElementOrder(['player', 'game']) // Reset to default order when generating new post
     setPlayerNameFont('Inter') // Reset to default font when generating new post
     setShowFontSelector(false) // Hide font selector when generating new post
     setEditHistory([]) // Reset edit history for new post
@@ -158,13 +162,27 @@ function App() {
   }
 
   const handleDragStart = (e) => {
-    e.dataTransfer.setData('text/plain', 'game-info')
+    const dataType = e.target.classList.contains('ig-player-name') ? 'player-name' : 'game-info'
+    
+    // Store the drag type as regular (vertical) drag by default
+    // Horizontal switching will be handled by specific drop zones
+    e.dataTransfer.setData('text/plain', dataType)
     e.dataTransfer.effectAllowed = 'move'
     e.target.style.opacity = '0.5'
+    
     // Add visual feedback to all drop zones
     document.querySelectorAll('.drop-zone').forEach(zone => {
       zone.classList.add('drag-active')
     })
+    
+    // Add visual feedback for horizontal zones when both elements are in same section
+    const currentPlayerSection = playerNamePosition
+    const currentGameSection = gameInfoPosition
+    if (currentPlayerSection === currentGameSection) {
+      document.querySelectorAll('.horizontal-drop-zone').forEach(zone => {
+        zone.classList.add('horizontal-drag-active')
+      })
+    }
   }
 
   const handleDragEnd = (e) => {
@@ -172,6 +190,9 @@ function App() {
     // Remove visual feedback from all drop zones
     document.querySelectorAll('.drop-zone').forEach(zone => {
       zone.classList.remove('drag-active', 'drag-over')
+    })
+    document.querySelectorAll('.horizontal-drop-zone').forEach(zone => {
+      zone.classList.remove('horizontal-drag-active', 'horizontal-drag-over')
     })
   }
 
@@ -182,21 +203,39 @@ function App() {
 
   const handleDragEnter = (e) => {
     e.preventDefault()
-    e.currentTarget.classList.add('drag-over')
+    if (e.currentTarget.classList.contains('horizontal-drop-zone')) {
+      e.currentTarget.classList.add('horizontal-drag-over')
+    } else {
+      e.currentTarget.classList.add('drag-over')
+    }
   }
 
   const handleDragLeave = (e) => {
     e.preventDefault()
     // Only remove if we're actually leaving the element (not just entering a child)
     if (!e.currentTarget.contains(e.relatedTarget)) {
-      e.currentTarget.classList.remove('drag-over')
+      e.currentTarget.classList.remove('drag-over', 'horizontal-drag-over')
     }
   }
 
   const handleDrop = (e, position) => {
     e.preventDefault()
     const data = e.dataTransfer.getData('text/plain')
-    if (data === 'game-info') {
+    
+    // Check if this is a horizontal reordering (dropping on horizontal-drop-zone when both elements are in same section)
+    const isHorizontalDrop = e.currentTarget.classList.contains('horizontal-drop-zone')
+    const bothElementsInSameSection = playerNamePosition === gameInfoPosition
+    
+    if (isHorizontalDrop && bothElementsInSameSection && (data === 'player-name' || data === 'game-info')) {
+      // Handle horizontal reordering
+      const newOrder = [...elementOrder].reverse()
+      setElementOrder(newOrder)
+      
+      const elementType = data === 'player-name' ? 'Player Name' : 'Game Info'
+      addToEditHistory('Element Order Changed', `${elementType} moved to ${newOrder[0] === 'player' ? 'left' : 'right'} side`)
+    }
+    // Handle vertical positioning
+    else if (data === 'game-info') {
       const oldPosition = gameInfoPosition
       setGameInfoPosition(position)
       
@@ -206,10 +245,53 @@ function App() {
         'bottom-stats': 'Bottom Section'
       }
       addToEditHistory('Game Info Moved', `Moved from ${positionNames[oldPosition]} to ${positionNames[position]}`)
+    } else if (data === 'player-name') {
+      const oldPosition = playerNamePosition
+      setPlayerNamePosition(position)
+      
+      const positionNames = {
+        'header': 'Header',
+        'top-stats': 'Stats Section', 
+        'bottom-stats': 'Bottom Section'
+      }
+      addToEditHistory('Player Name Moved', `Moved from ${positionNames[oldPosition]} to ${positionNames[position]}`)
     }
+    
     // Clean up visual feedback
-    e.currentTarget.classList.remove('drag-over')
+    e.currentTarget.classList.remove('drag-over', 'horizontal-drag-over')
   }
+
+  const renderPlayerName = () => (
+    <div className="player-name-container">
+      <h2 
+        className="ig-player-name clickable-player-name draggable" 
+        style={{ fontFamily: playerNameFont }}
+        onClick={toggleFontSelector}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        draggable
+        title="Click to change font, drag to move"
+      >
+        {generatedPost.playerName}
+      </h2>
+      {showFontSelector && (
+        <div className="font-selector-dropdown">
+          <select value={playerNameFont} onChange={handleFontChange} autoFocus>
+            <option value="Inter">Inter (Default)</option>
+            <option value="Arial">Arial</option>
+            <option value="Helvetica">Helvetica</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Impact">Impact</option>
+            <option value="Trebuchet MS">Trebuchet MS</option>
+            <option value="Arial Black">Arial Black</option>
+          </select>
+        </div>
+      )}
+    </div>
+  )
 
   const renderGameInfo = () => (
     <p 
@@ -218,10 +300,54 @@ function App() {
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      title="Click to toggle info, drag to move"
     >
       {getGameInfoContent()}
     </p>
   )
+
+  const renderBothElements = (section) => {
+    const playerInSection = playerNamePosition === section
+    const gameInSection = gameInfoPosition === section
+    
+    if (!playerInSection && !gameInSection) return null
+    if (playerInSection && !gameInSection) return renderPlayerName()
+    if (!playerInSection && gameInSection) return renderGameInfo()
+    
+    // Both elements are in the same section - render side by side
+    const elements = elementOrder.map(type => 
+      type === 'player' ? renderPlayerName() : renderGameInfo()
+    )
+    
+    return (
+      <div className="both-elements-container">
+        <div className="horizontal-drag-zone">
+          <div 
+            className="horizontal-drop-zone left-drop" 
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, section)}
+          >
+            <div className="element-container">
+              {elements[0]}
+            </div>
+          </div>
+          <div 
+            className="horizontal-drop-zone right-drop"
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, section)}
+          >
+            <div className="element-container">
+              {elements[1]}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const closePost = () => {
     setGeneratedPost(null)
@@ -351,7 +477,7 @@ Total Edits: ${editHistory.length}
         <div className="header-content">
           <div className="logo">
             <Activity className="logo-icon" />
-            <h1>GAME STAT CARD</h1>
+            <h1>GameStatCard</h1>
           </div>
           <p className="subtitle">Generate NBA players game stat card for social media posts</p>
         </div>
@@ -419,14 +545,12 @@ Total Edits: ${editHistory.length}
                   <thead>
                     <tr>
                       <th><Calendar size={16} /> Date</th>
-                      <th>Opponent</th>
+                      <th>OPP</th>
                       <th>PTS</th>
                       <th>REB</th>
                       <th>AST</th>
                       <th>STL</th>
                       <th>BLK</th>
-                      <th>FG%</th>
-                      <th>MIN</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -440,8 +564,6 @@ Total Edits: ${editHistory.length}
                         <td>{game.assists}</td>
                         <td>{game.steals}</td>
                         <td>{game.blocks}</td>
-                        <td>{game.fgPercentage}</td>
-                        <td>{game.minutes}</td>
                         <td>
                           <button 
                             onClick={() => generateIGPost(game, selectedPlayer.name)}
@@ -558,33 +680,7 @@ Total Edits: ${editHistory.length}
                     onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, 'header')}
                   >
-                    <div className="player-name-container">
-                      <h2 
-                        className="ig-player-name clickable-player-name" 
-                        style={{ fontFamily: playerNameFont }}
-                        onClick={toggleFontSelector}
-                        title="Click to change font"
-                      >
-                        {generatedPost.playerName}
-                      </h2>
-                      {showFontSelector && (
-                        <div className="font-selector-dropdown">
-                          <select value={playerNameFont} onChange={handleFontChange} autoFocus>
-                            <option value="Inter">Inter (Default)</option>
-                            <option value="Arial">Arial</option>
-                            <option value="Helvetica">Helvetica</option>
-                            <option value="Georgia">Georgia</option>
-                            <option value="Times New Roman">Times New Roman</option>
-                            <option value="Courier New">Courier New</option>
-                            <option value="Verdana">Verdana</option>
-                            <option value="Impact">Impact</option>
-                            <option value="Trebuchet MS">Trebuchet MS</option>
-                            <option value="Arial Black">Arial Black</option>
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                    {gameInfoPosition === 'header' && renderGameInfo()}
+                    {renderBothElements('header')}
                   </div>
                   
                   <div className="ig-stats-display">
@@ -595,9 +691,9 @@ Total Edits: ${editHistory.length}
                       onDragLeave={handleDragLeave}
                       onDrop={(e) => handleDrop(e, 'top-stats')}
                     >
-                      {gameInfoPosition === 'top-stats' && (
-                        <div className="game-info-in-stats">
-                          {renderGameInfo()}
+                      {(gameInfoPosition === 'top-stats' || playerNamePosition === 'top-stats') && (
+                        <div className="elements-in-stats">
+                          {renderBothElements('top-stats')}
                         </div>
                       )}
                       <div className="ig-stat-item">
@@ -638,9 +734,9 @@ Total Edits: ${editHistory.length}
                       onDragLeave={handleDragLeave}
                       onDrop={(e) => handleDrop(e, 'bottom-stats')}
                     >
-                      {gameInfoPosition === 'bottom-stats' && (
-                        <div className="game-info-in-bottom">
-                          {renderGameInfo()}
+                      {(gameInfoPosition === 'bottom-stats' || playerNamePosition === 'bottom-stats') && (
+                        <div className="elements-in-bottom">
+                          {renderBothElements('bottom-stats')}
                         </div>
                       )}
                     </div>
@@ -679,6 +775,8 @@ Total Edits: ${editHistory.length}
                 <p className="post-note">🔄 Tip: Click the game info to toggle date/opponent display</p>
                 <p className="post-note">⟷ Tip: Drag the game info between sections (header ↔ stats ↔ bottom)</p>
                 <p className="post-note">🎨 Tip: Click the player name to change font style</p>
+                <p className="post-note">📍 Tip: Drag the player name between sections like the game info</p>
+                <p className="post-note">↔️ Tip: When both elements are in the same section, drag left/right to switch positions</p>
               </div>
             </div>
           </div>
