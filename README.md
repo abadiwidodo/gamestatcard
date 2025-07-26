@@ -20,6 +20,44 @@ A modern React web application for creating stunning NBA player stat cards for s
 
 ### Prerequisites
 
+- Node.js (version 14 or higher)
+- npm or yarn package manager
+- Supabase account (for authentication)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/abadiwidodo/gamestatcard.git
+   cd gamestatcard
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up Supabase**
+   - Create a new project at [supabase.com](https://supabase.com)
+   - Go to Settings → API to get your project URL and anon key
+   - Copy `.env.example` to `.env` and fill in your Supabase credentials:
+   ```bash
+   cp .env.example .env
+   ```
+   - Edit `.env` with your actual Supabase values:
+   ```
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   - Navigate to `http://localhost:5173`
+
 - Node.js (version 16 or higher)
 - npm or yarn package manager
 

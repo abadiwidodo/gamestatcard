@@ -1,9 +1,13 @@
 import { useState, useRef } from 'react'
-import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share } from 'lucide-react'
+import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share, LogIn } from 'lucide-react'
 import html2canvas from 'html2canvas'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import AuthModal from './components/AuthModal'
+import Dashboard from './components/Dashboard'
 import './App.css'
 
 function App() {
+  const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedPlayer, setSelectedPlayer] = useState(null)
   const [gameStats, setGameStats] = useState([])
@@ -23,6 +27,9 @@ function App() {
   const [editHistory, setEditHistory] = useState([])
   const [playerNameFont, setPlayerNameFont] = useState('Inter')
   const [showFontSelector, setShowFontSelector] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authMode, setAuthMode] = useState('signin')
+  const [showDashboard, setShowDashboard] = useState(false)
   const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
@@ -583,6 +590,42 @@ Total Edits: ${editHistory.length}
             <h1>GameStatCard</h1>
           </div>
           <p className="subtitle">Generate NBA players game stat card for social media posts</p>
+          
+          {/* Authentication Controls */}
+          <div className="auth-controls">
+            {user ? (
+              <button 
+                onClick={() => setShowDashboard(true)}
+                className="user-account-btn"
+              >
+                <User size={16} />
+                {user.email}
+              </button>
+            ) : (
+              <div className="auth-buttons">
+                <button 
+                  onClick={() => {
+                    setAuthMode('signin')
+                    setShowAuthModal(true)
+                  }}
+                  className="user-account-btn"
+                >
+                  <LogIn size={16} />
+                  Sign In
+                </button>
+                <button 
+                  onClick={() => {
+                    setAuthMode('signup')
+                    setShowAuthModal(true)
+                  }}
+                  className="user-account-btn"
+                >
+                  <User size={16} />
+                  Sign Up
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -935,8 +978,30 @@ Total Edits: ${editHistory.length}
           </div>
         </div>
       )}
+
+      {/* Authentication Modal */}
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        mode={authMode}
+        setMode={setAuthMode}
+      />
+
+      {/* Dashboard Modal */}
+      {showDashboard && (
+        <Dashboard onClose={() => setShowDashboard(false)} />
+      )}
     </div>
   )
 }
 
-export default App
+// Main App Component with Auth Provider
+function AppWithAuth() {
+  return (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  )
+}
+
+export default AppWithAuth
