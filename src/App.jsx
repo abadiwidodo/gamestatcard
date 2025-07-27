@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share, LogIn, Menu, X, CreditCard } from 'lucide-react'
+import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share, LogIn, Menu, X, CreditCard, Instagram } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthModal from './components/AuthModal'
@@ -31,6 +31,11 @@ function App() {
   const [authMode, setAuthMode] = useState('signin')
   const [showDashboard, setShowDashboard] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [quickSearchTerm, setQuickSearchTerm] = useState('')
+  const [quickSearchResults, setQuickSearchResults] = useState([])
+  const [quickSearchLoading, setQuickSearchLoading] = useState(false)
+  const [selectedQuickGame, setSelectedQuickGame] = useState(null)
+  const [postFormat, setPostFormat] = useState('instagram-square') // 'instagram-square', 'instagram-reel', 'tiktok'
   const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
@@ -190,6 +195,49 @@ function App() {
       setError('Error fetching player data. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleQuickSearch = async () => {
+    if (!quickSearchTerm.trim()) return
+
+    setQuickSearchLoading(true)
+    setQuickSearchResults([])
+    setSelectedQuickGame(null)
+
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      const foundPlayer = mockPlayers.find(player => 
+        player.name.toLowerCase().includes(quickSearchTerm.toLowerCase())
+      )
+
+      if (foundPlayer) {
+        const gameStats = generateMockStats(foundPlayer.name)
+        setQuickSearchResults(gameStats.map(game => ({
+          ...game,
+          playerName: foundPlayer.name
+        })))
+      } else {
+        setQuickSearchResults([])
+      }
+    } catch (err) {
+      setQuickSearchResults([])
+    } finally {
+      setQuickSearchLoading(false)
+    }
+  }
+
+  const handleQuickKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleQuickSearch()
+    }
+  }
+
+  const handleQuickGenerate = () => {
+    if (selectedQuickGame) {
+      generateIGPost(selectedQuickGame, selectedQuickGame.playerName)
     }
   }
 
@@ -686,7 +734,7 @@ Total Edits: ${editHistory.length}
           <div className="section-header">
             <p className="subtitle">Generate NBA players game stat card for social media posts</p>
           </div>
-          <div className="search-container">
+          {/* <div className="search-container">
             <div className="search-box">
               <Search className="search-icon" />
               <input
@@ -706,13 +754,99 @@ Total Edits: ${editHistory.length}
                 {loading ? 'Searching...' : 'Search'}
               </button>
             </div>
-          </div>
+          </div> */}
 
           {error && (
             <div className="error-message">
               <p>{error}</p>
             </div>
           )}
+        </div>
+
+        {/* Quick Generator Section */}
+        <div className="quick-generator-section">
+          <div className="quick-generator-container">
+            <div className="quick-search-area">
+              <div className="quick-search-box">
+                <input
+                  type="text"
+                  value={quickSearchTerm}
+                  onChange={(e) => setQuickSearchTerm(e.target.value)}
+                  onKeyPress={handleQuickKeyPress}
+                  placeholder="Quick search NBA player"
+                  className="quick-search-input"
+                  disabled={quickSearchLoading}
+                />
+                <button 
+                  onClick={handleQuickSearch}
+                  disabled={quickSearchLoading || !quickSearchTerm.trim()}
+                  className="quick-search-button"
+                  aria-label="Search"
+                >
+                  <Search size={18} />
+                </button>
+              </div>
+
+              {quickSearchResults.length > 0 && (
+                <div className="quick-games-grid">
+                  {quickSearchResults.map((game, index) => (
+                    <div 
+                      key={index} 
+                      className={`quick-game-box ${selectedQuickGame?.game === game.game ? 'selected' : ''}`}
+                      onClick={() => setSelectedQuickGame(game)}
+                    >
+                      <div className="quick-game-date">{game.date}</div>
+                      <div className="quick-game-opponent">{game.opponent}</div>
+                      <div className="quick-game-stats">
+                        <span>{game.points}pts</span>
+                        <span>{game.rebounds}reb</span>
+                        <span>{game.assists}ast</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="format-selection-area">
+              <h4>Select Post Format</h4>
+              <div className="format-options">
+                <button 
+                  className={`format-option ${postFormat === 'instagram-square' ? 'selected' : ''}`}
+                  onClick={() => setPostFormat('instagram-square')}
+                >
+                  <Instagram size={20} />
+                  <span>IG Square Post</span>
+                </button>
+                <button 
+                  className={`format-option ${postFormat === 'instagram-reel' ? 'selected' : ''}`}
+                  onClick={() => setPostFormat('instagram-reel')}
+                >
+                  <Instagram size={20} />
+                  <span>IG Reel Size</span>
+                </button>
+                <button 
+                  className={`format-option ${postFormat === 'tiktok' ? 'selected' : ''}`}
+                  onClick={() => setPostFormat('tiktok')}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                  </svg>
+                  <span>TikTok Post</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="generate-button-area">
+              <button 
+                onClick={handleQuickGenerate}
+                disabled={!selectedQuickGame}
+                className="quick-generate-button"
+              >
+                GENERATE
+              </button>
+            </div>
+          </div>
         </div>
 
         {loading && (
