@@ -73,7 +73,7 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(8, 145, 178, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.3), transparent);
 }
 
 @keyframes slideInScale {
@@ -119,8 +119,8 @@ body {
 }
 
 .auth-header h2 svg {
-  color: #0891b2;
-  background: rgba(8, 145, 178, 0.1);
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
   padding: 0.5rem;
   border-radius: 12px;
   width: 2.5rem;
@@ -170,11 +170,11 @@ body {
 }
 
 .auth-field:focus-within {
-  border-color: #0891b2;
+  border-color: #f59e0b;
   background: #ffffff;
   box-shadow: 
-    0 0 0 4px rgba(8, 145, 178, 0.1),
-    0 4px 12px rgba(8, 145, 178, 0.15),
+    0 0 0 4px rgba(245, 158, 11, 0.1),
+    0 4px 12px rgba(245, 158, 11, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transform: translateY(-1px);
 }
@@ -188,7 +188,7 @@ body {
 }
 
 .auth-field:focus-within svg {
-  color: #0891b2;
+  color: #f59e0b;
 }
 
 .auth-field input {
@@ -247,7 +247,7 @@ body {
 }
 
 .auth-submit-btn {
-  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: white;
   border: none;
   padding: 1rem 1.5rem;
@@ -262,7 +262,7 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   letter-spacing: -0.01em;
   box-shadow: 
-    0 4px 12px rgba(8, 145, 178, 0.3),
+    0 4px 12px rgba(245, 158, 11, 0.3),
     0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -278,10 +278,10 @@ body {
 }
 
 .auth-submit-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #0e7490 0%, #155e75 100%);
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
   transform: translateY(-2px);
   box-shadow: 
-    0 8px 25px rgba(8, 145, 178, 0.4),
+    0 8px 25px rgba(245, 158, 11, 0.4),
     0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -298,7 +298,7 @@ body {
   cursor: not-allowed;
   transform: none;
   box-shadow: 
-    0 2px 6px rgba(8, 145, 178, 0.2),
+    0 2px 6px rgba(245, 158, 11, 0.2),
     0 1px 3px rgba(0, 0, 0, 0.1);
   background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
 }
@@ -319,7 +319,7 @@ body {
   transform: translateX(-50%);
   width: 60px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #0891b2, transparent);
+  background: linear-gradient(90deg, transparent, #f59e0b, transparent);
 }
 
 .auth-switch p {
@@ -332,7 +332,7 @@ body {
 .auth-switch-btn {
   background: none;
   border: none;
-  color: #0891b2;
+  color: #f59e0b;
   cursor: pointer;
   font-weight: 700;
   margin-left: 0.5rem;
@@ -345,8 +345,8 @@ body {
 }
 
 .auth-switch-btn:hover {
-  color: #0e7490;
-  text-decoration-color: #0e7490;
+  color: #d97706;
+  text-decoration-color: #d97706;
   transform: translateY(-1px);
 }
 
@@ -431,7 +431,7 @@ body {
 }
 
 .user-avatar {
-  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: white;
   width: 60px;
   height: 60px;
@@ -501,7 +501,7 @@ body {
 }
 
 .stat-icon {
-  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: white;
   width: 48px;
   height: 48px;
@@ -574,7 +574,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  color: #0891b2;
+  color: #f59e0b;
   font-weight: 600;
   font-size: 0.875rem;
 }
@@ -598,24 +598,24 @@ body {
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: white;
 }
 
 .action-btn.primary:hover {
-  background: linear-gradient(135deg, #0e7490 0%, #0e7490 100%);
+  background: linear-gradient(135deg, #d97706 0%, #d97706 100%);
   transform: translateY(-1px);
-  box-shadow: 0 10px 25px -5px rgba(8, 145, 178, 0.4);
+  box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4);
 }
 
 .action-btn.secondary {
   background: white;
-  color: #0891b2;
-  border: 2px solid #0891b2;
+  color: #f59e0b;
+  border: 2px solid #f59e0b;
 }
 
 .action-btn.secondary:hover {
-  background: #0891b2;
+  background: #f59e0b;
   color: white;
   transform: translateY(-1px);
 }
@@ -946,8 +946,8 @@ body {
 }
 
 .search-box:focus-within {
-  border-color: #0891b2;
-  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
 }
 
 .search-icon {
@@ -977,7 +977,7 @@ body {
 }
 
 .search-button {
-  background: #0891b2;
+  background: #f59e0b;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -993,9 +993,9 @@ body {
 }
 
 .search-button:hover:not(:disabled) {
-  background: #0e7490;
+  background: #d97706;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.4);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
 }
 
 .search-button:active {
@@ -1023,11 +1023,11 @@ body {
 
 /* Quick Generator Section */
 .quick-generator-section {
-  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   margin: 2rem 0;
   padding: 2rem;
   border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(8, 145, 178, 0.15);
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.15);
 }
 
 .quick-generator-container {
@@ -1053,7 +1053,7 @@ body {
   border-radius: 12px;
   padding: 0.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(8, 145, 178, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 .quick-search-input {
@@ -1072,7 +1072,7 @@ body {
 }
 
 .quick-search-button {
-  background: #0891b2;
+  background: #f59e0b;
   color: white;
   border: none;
   padding: 0.75rem;
@@ -1088,9 +1088,9 @@ body {
 }
 
 .quick-search-button:hover:not(:disabled) {
-  background: #0e7490;
+  background: #d97706;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
 .quick-search-button:disabled {
@@ -1213,7 +1213,7 @@ body {
 
 .quick-generate-button {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  color: #0891b2;
+  color: #f59e0b;
   border: none;
   padding: 1rem 2rem;
   border-radius: 12px;
@@ -1399,7 +1399,7 @@ body {
   width: 32px;
   height: 32px;
   border: 3px solid #e2e8f0;
-  border-left: 3px solid #0891b2;
+  border-left: 3px solid #f59e0b;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
