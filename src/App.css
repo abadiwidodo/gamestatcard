@@ -712,11 +712,6 @@ body {
   transform: translateY(-50%);
 }
 
-.auth-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
 /* Mobile Menu Styles */
 .desktop-only {
   display: block;
@@ -879,7 +874,7 @@ body {
 }
 
 .logo h1 {
-  font-size: 2.25rem;
+  font-size: 1.75rem;
   font-weight: 900;
   color: #ffffff;
   letter-spacing: -0.02em;

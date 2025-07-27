@@ -613,28 +613,16 @@ Total Edits: ${editHistory.length}
                 {user.email}
               </button>
             ) : (
-              <div className="auth-buttons">
-                <button 
-                  onClick={() => {
-                    setAuthMode('signin')
-                    setShowAuthModal(true)
-                  }}
-                  className="user-account-btn"
-                >
-                  <LogIn size={16} />
-                  Sign In
-                </button>
-                <button 
-                  onClick={() => {
-                    setAuthMode('signup')
-                    setShowAuthModal(true)
-                  }}
-                  className="user-account-btn"
-                >
-                  <User size={16} />
-                  Sign Up
-                </button>
-              </div>
+              <button 
+                onClick={() => {
+                  setAuthMode('signin')
+                  setShowAuthModal(true)
+                }}
+                className="user-account-btn"
+              >
+                <LogIn size={16} />
+                Login / Sign Up
+              </button>
             )}
           </div>
 
@@ -675,30 +663,17 @@ Total Edits: ${editHistory.length}
                     </button>
                   </>
                 ) : (
-                  <>
-                    <button 
-                      onClick={() => {
-                        setAuthMode('signin')
-                        setShowAuthModal(true)
-                        setShowMobileMenu(false)
-                      }}
-                      className="mobile-menu-item"
-                    >
-                      <LogIn size={16} />
-                      Sign In
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setAuthMode('signup')
-                        setShowAuthModal(true)
-                        setShowMobileMenu(false)
-                      }}
-                      className="mobile-menu-item"
-                    >
-                      <User size={16} />
-                      Sign Up
-                    </button>
-                  </>
+                  <button 
+                    onClick={() => {
+                      setAuthMode('signin')
+                      setShowAuthModal(true)
+                      setShowMobileMenu(false)
+                    }}
+                    className="mobile-menu-item"
+                  >
+                    <LogIn size={16} />
+                    Login / Sign Up
+                  </button>
                 )}
               </div>
             </>
