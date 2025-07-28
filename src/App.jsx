@@ -173,7 +173,7 @@ function App() {
 
   // Mock game stats data
   const generateMockStats = (playerName) => {
-    return Array.from({ length: 5 }, (_, index) => ({
+    return Array.from({ length: 3 }, (_, index) => ({
       game: index + 1,
       date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }),
       opponent: `vs ${['Lakers', 'Warriors', 'Celtics', 'Heat', 'Nuggets'][index]}`,
