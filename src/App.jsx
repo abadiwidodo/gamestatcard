@@ -14,7 +14,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [generatedPost, setGeneratedPost] = useState(null)
-  const [showSecondaryStats, setShowSecondaryStats] = useState(true)
+  const [showSecondaryStats, setShowSecondaryStats] = useState(false)
   const [gameInfoMode, setGameInfoMode] = useState('both') // 'date', 'opponent', 'both'
   const [gameInfoPosition, setGameInfoPosition] = useState('header') // 'header', 'top-stats', 'bottom-stats'
   const [playerNamePosition, setPlayerNamePosition] = useState('header') // 'header', 'top-stats', 'bottom-stats'
@@ -279,7 +279,7 @@ function App() {
       minutes: game.minutes
     }
     setGeneratedPost(postData)
-    setShowSecondaryStats(true) // Reset to show secondary stats when generating new post
+    setShowSecondaryStats(false) // Keep secondary stats hidden by default
     setGameInfoMode('both') // Reset to show both date and opponent when generating new post
     setGameInfoPosition('header') // Reset to header position when generating new post
     setPlayerNamePosition('header') // Reset player name to header position when generating new post
@@ -756,10 +756,6 @@ Total Edits: ${editHistory.length}
         <div className="main-layout">
           <div className="generator-section">
             <div className="card">
-              <div className="card-header">
-                <h2>Quick Generator</h2>
-                <p>Instantly create a stat card for any player's recent game.</p>
-              </div>
               <div className="quick-generator-container">
                 <div className="form-group">
                   <label htmlFor="quick-search">Player Name</label>
