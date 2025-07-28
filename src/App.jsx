@@ -54,6 +54,15 @@ function App() {
     }
   })
   
+  // Freestyle positioning state
+  const [textPositions, setTextPositions] = useState({
+    playerName: { x: 20, y: 20 },
+    gameInfo: { x: 20, y: 60 },
+    mainStats: { x: 0, y: 300 }
+  })
+  const [isDraggingText, setIsDraggingText] = useState(null)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  
   const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
@@ -284,8 +293,12 @@ function App() {
     setGameInfoPosition('header') // Reset to header position when generating new post
     setPlayerNamePosition('header') // Reset player name to header position when generating new post
     setElementOrder(['player', 'game']) // Reset to default order when generating new post
-    setPlayerNameFont('Inter') // Reset to default font when generating new post
-    setShowFontSelector(false) // Hide font selector when generating new post
+    // Reset text positions for freestyle mode
+    setTextPositions({
+      playerName: { x: 20, y: 20 },
+      gameInfo: { x: 20, y: 60 },
+      mainStats: { x: 0, y: 300 }
+    })
     setEditHistory([]) // Reset edit history for new post
     addToEditHistory('Post Generated', `Created IG post for ${playerName} - ${game.date}`)
   }
@@ -595,6 +608,71 @@ function App() {
 
   const getTextStyle = (elementType) => {
     return textStyles[elementType] || textStyles.playerName
+  }
+
+  // Freestyle text positioning functions
+  const handleTextMouseDown = (e, elementType) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const rect = e.currentTarget.getBoundingClientRect()
+    const containerRect = e.currentTarget.closest('.ig-post').getBoundingClientRect()
+    
+    setIsDraggingText(elementType)
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    })
+    
+    // Select the element when starting to drag
+    setSelectedTextElement(elementType)
+  }
+
+  const handleTextMouseMove = (e) => {
+    if (!isDraggingText) return
+    
+    e.preventDefault()
+    const container = document.querySelector('.ig-post')
+    if (!container) return
+    
+    const containerRect = container.getBoundingClientRect()
+    const newX = e.clientX - containerRect.left - dragOffset.x
+    const newY = e.clientY - containerRect.top - dragOffset.y
+    
+    // Handle different movement constraints based on element type
+    let constrainedX, constrainedY
+    
+    if (isDraggingText === 'mainStats') {
+      // Main stats: full width, only vertical movement
+      constrainedX = 0 // Always full width
+      const minY = 0
+      const maxY = containerRect.height - 120 // Account for stats height
+      constrainedY = Math.max(minY, Math.min(newY, maxY))
+    } else {
+      // Text elements: free movement in both directions
+      const minX = 0
+      const minY = 0
+      const maxX = containerRect.width - 50
+      const maxY = containerRect.height - 50
+      constrainedX = Math.max(minX, Math.min(newX, maxX))
+      constrainedY = Math.max(minY, Math.min(newY, maxY))
+    }
+    
+    setTextPositions(prev => ({
+      ...prev,
+      [isDraggingText]: { x: constrainedX, y: constrainedY }
+    }))
+  }
+
+  const handleTextMouseUp = () => {
+    if (isDraggingText) {
+      const elementName = isDraggingText === 'playerName' ? 'Player Name' : 
+                         isDraggingText === 'gameInfo' ? 'Game Info' : 'Main Stats'
+      const position = textPositions[isDraggingText]
+      addToEditHistory('Text Repositioned', `${elementName} moved to (${Math.round(position.x)}, ${Math.round(position.y)})`)
+    }
+    setIsDraggingText(null)
+    setDragOffset({ x: 0, y: 0 })
   }
 
   const saveAsPNG = async () => {
@@ -1034,8 +1112,11 @@ Total Edits: ${editHistory.length}
               <div className="preview-canvas">
                 <div 
                   id="post-to-generate"
-                  className="ig-post"
+                  className="ig-post freestyle-post"
                   ref={postRef}
+                  onMouseMove={handleTextMouseMove}
+                  onMouseUp={handleTextMouseUp}
+                  onMouseLeave={handleTextMouseUp}
                 >
                   <div 
                     className="ig-post-background"
@@ -1052,29 +1133,56 @@ Total Edits: ${editHistory.length}
                       cursor: 'default'
                     }}
                   >
-                    <div 
-                      className="ig-post-header-info drop-zone"
-                      onDragOver={handleDragOver}
-                      onDragEnter={handleDragEnter}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, 'header')}
+                    {/* Freestyle positioned text elements */}
+                    <div
+                      className={`freestyle-text-element ${selectedTextElement === 'playerName' ? 'selected' : ''}`}
+                      style={{
+                        position: 'absolute',
+                        left: `${textPositions.playerName.x}px`,
+                        top: `${textPositions.playerName.y}px`,
+                        cursor: isDraggingText === 'playerName' ? 'grabbing' : 'grab',
+                        zIndex: selectedTextElement === 'playerName' ? 10 : 5,
+                        ...getTextStyle('playerName')
+                      }}
+                      onMouseDown={(e) => handleTextMouseDown(e, 'playerName')}
+                      onClick={() => selectTextElement('playerName')}
+                      title="Click to edit, drag to move"
                     >
-                      {renderBothElements('header')}
+                      {generatedPost.playerName}
+                    </div>
+
+                    <div
+                      className={`freestyle-text-element ${selectedTextElement === 'gameInfo' ? 'selected' : ''}`}
+                      style={{
+                        position: 'absolute',
+                        left: `${textPositions.gameInfo.x}px`,
+                        top: `${textPositions.gameInfo.y}px`,
+                        cursor: isDraggingText === 'gameInfo' ? 'grabbing' : 'grab',
+                        zIndex: selectedTextElement === 'gameInfo' ? 10 : 5,
+                        ...getTextStyle('gameInfo')
+                      }}
+                      onMouseDown={(e) => handleTextMouseDown(e, 'gameInfo')}
+                      onClick={() => selectTextElement('gameInfo')}
+                      title="Click to edit, drag to move"
+                    >
+                      {getGameInfoContent()}
                     </div>
                     
-                    <div className="ig-stats-display">
-                      <div 
-                        className="ig-main-stats drop-zone"
-                        onDragOver={handleDragOver}
-                        onDragEnter={handleDragEnter}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, 'top-stats')}
-                      >
-                        {(gameInfoPosition === 'top-stats' || playerNamePosition === 'top-stats') && (
-                          <div className="elements-in-stats">
-                            {renderBothElements('top-stats')}
-                          </div>
-                        )}
+                    {/* Stats display */}
+                    <div 
+                      className={`ig-stats-display freestyle-text-element ${selectedTextElement === 'mainStats' ? 'selected' : ''}`}
+                      style={{
+                        position: 'absolute',
+                        left: `${textPositions.mainStats.x}px`,
+                        top: `${textPositions.mainStats.y}px`,
+                        cursor: isDraggingText === 'mainStats' ? 'grabbing' : 'grab',
+                        zIndex: selectedTextElement === 'mainStats' ? 10 : 5
+                      }}
+                      onMouseDown={(e) => handleTextMouseDown(e, 'mainStats')}
+                      onClick={() => selectTextElement('mainStats')}
+                      title="Click to edit, drag to move"
+                    >
+                      <div className="ig-main-stats">
                         <div className="ig-stat-item">
                           <span className="ig-stat-value">{generatedPost.points}</span>
                           <span className="ig-stat-label">POINTS</span>
@@ -1105,20 +1213,6 @@ Total Edits: ${editHistory.length}
                           </div>
                         </div>
                       )}
-                      
-                      <div 
-                        className="ig-bottom-section drop-zone"
-                        onDragOver={handleDragOver}
-                        onDragEnter={handleDragEnter}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, 'bottom-stats')}
-                      >
-                        {(gameInfoPosition === 'bottom-stats' || playerNamePosition === 'bottom-stats') && (
-                          <div className="elements-in-bottom">
-                            {renderBothElements('bottom-stats')}
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </div>
                 </div>

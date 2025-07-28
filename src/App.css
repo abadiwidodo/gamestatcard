@@ -918,6 +918,52 @@ body {
   position: relative;
 }
 
+/* Freestyle positioning styles */
+.freestyle-post {
+  user-select: none;
+  overflow: hidden;
+}
+
+.freestyle-text-element {
+  user-select: none;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  min-width: 50px;
+  max-width: 300px;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.freestyle-text-element:hover {
+  background: rgba(59, 130, 246, 0.1);
+  outline: 2px dashed rgba(59, 130, 246, 0.3);
+}
+
+.freestyle-text-element.selected {
+  background: rgba(59, 130, 246, 0.2);
+  outline: 2px solid var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.freestyle-text-element.selected::after {
+  content: '✎';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--primary);
+  color: white;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  z-index: 20;
+}
+
 .ig-post-background {
   position: absolute;
   top: 0;
@@ -951,6 +997,33 @@ body {
   left: 1rem;
   right: 1rem;
   color: white;
+  /* Remove these for freestyle positioning */
+  position: static;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  width: 280px;
+}
+
+.ig-stats-display.freestyle-text-element {
+  position: absolute !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important; /* Full width */
+  padding: 4px;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.ig-stats-display.freestyle-text-element:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.02);
+}
+
+.ig-stats-display.freestyle-text-element.selected {
+  background: rgba(var(--primary-rgb), 0.2);
+  box-shadow: 0 0 0 2px var(--primary);
 }
 
 .ig-main-stats {
@@ -1084,6 +1157,24 @@ body {
     padding: 0.4rem;
   }
 
+  /* Freestyle mobile adjustments */
+  .freestyle-text-element {
+    max-width: 250px;
+    font-size: 0.9em;
+  }
+
+  .freestyle-text-element:hover {
+    background: rgba(59, 130, 246, 0.15);
+  }
+
+  .freestyle-text-element.selected::after {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    top: -10px;
+    right: -10px;
+  }
+
   .header-content {
     padding: 0 1rem;
   }
@@ -1139,6 +1230,34 @@ body {
 
   .engagement-item {
     font-size: 0.75rem;
+  }
+  .freestyle-text-element {
+    min-height: 44px; /* Minimum touch target size */
+    padding: 8px;
+    border-radius: 6px;
+  }
+
+  .freestyle-text-element.selected {
+    border-width: 1px;
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+
+  .freestyle-text-element.selected::after {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    top: -10px;
+    right: -10px;
+  }
+
+  /* Stats display mobile adjustments */
+  .ig-stats-display.freestyle-text-element {
+    width: 100% !important; /* Full width on mobile too */
+    padding: 6px;
+  }
+
+  .ig-stats-display.freestyle-text-element:hover {
+    transform: scale(1.01);
   }
 }
 
