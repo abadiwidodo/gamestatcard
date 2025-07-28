@@ -25,8 +25,6 @@ function App() {
   const [isDraggingBackground, setIsDraggingBackground] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [editHistory, setEditHistory] = useState([])
-  const [playerNameFont, setPlayerNameFont] = useState('Inter')
-  const [showFontSelector, setShowFontSelector] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState('signin')
   const [showDashboard, setShowDashboard] = useState(false)
@@ -36,6 +34,26 @@ function App() {
   const [quickSearchLoading, setQuickSearchLoading] = useState(false)
   const [selectedQuickGame, setSelectedQuickGame] = useState(null)
   const [postFormat, setPostFormat] = useState('instagram-square') // 'instagram-square', 'instagram-reel', 'tiktok'
+  
+  // WYSIWYG Editor State
+  const [selectedTextElement, setSelectedTextElement] = useState(null) // 'playerName' or 'gameInfo'
+  const [textStyles, setTextStyles] = useState({
+    playerName: {
+      fontFamily: 'Inter',
+      fontSize: 20,
+      fontWeight: 800,
+      fontStyle: 'normal',
+      textDecoration: 'none'
+    },
+    gameInfo: {
+      fontFamily: 'Inter',
+      fontSize: 14,
+      fontWeight: 400,
+      fontStyle: 'normal',
+      textDecoration: 'none'
+    }
+  })
+  
   const postRef = useRef(null)
 
   // Mock NBA players data for demo purposes
@@ -423,43 +441,28 @@ function App() {
   const renderPlayerName = () => (
     <div className="player-name-container">
       <h2 
-        className="ig-player-name clickable-player-name draggable" 
-        style={{ fontFamily: playerNameFont }}
-        onClick={toggleFontSelector}
+        className={`ig-player-name selectable-text draggable ${selectedTextElement === 'playerName' ? 'selected' : ''}`}
+        style={getTextStyle('playerName')}
+        onClick={() => selectTextElement('playerName')}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         draggable
-        title="Click to change font, drag to move"
+        title="Click to edit, drag to move"
       >
         {generatedPost.playerName}
       </h2>
-      {showFontSelector && (
-        <div className="font-selector-dropdown">
-          <select value={playerNameFont} onChange={handleFontChange} autoFocus>
-            <option value="Inter">Inter (Default)</option>
-            <option value="Arial">Arial</option>
-            <option value="Helvetica">Helvetica</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-            <option value="Verdana">Verdana</option>
-            <option value="Impact">Impact</option>
-            <option value="Trebuchet MS">Trebuchet MS</option>
-            <option value="Arial Black">Arial Black</option>
-          </select>
-        </div>
-      )}
     </div>
   )
 
   const renderGameInfo = () => (
     <p 
-      className="ig-game-info draggable" 
-      onClick={toggleGameInfo}
+      className={`ig-game-info selectable-text draggable ${selectedTextElement === 'gameInfo' ? 'selected' : ''}`}
+      style={getTextStyle('gameInfo')}
+      onClick={() => selectTextElement('gameInfo')}
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      title="Click to toggle info, drag to move"
+      title="Click to edit, drag to move"
     >
       {getGameInfoContent()}
     </p>
@@ -566,15 +569,32 @@ function App() {
     addToEditHistory('Background Scale Changed', `Scaled to ${newScale.toFixed(1)}x`)
   }
 
-  const handleFontChange = (e) => {
-    const newFont = e.target.value
-    setPlayerNameFont(newFont)
-    setShowFontSelector(false) // Hide selector after selection
-    addToEditHistory('Player Name Font Changed', `Changed font to: ${newFont}`)
+  // WYSIWYG Editor Functions
+  const selectTextElement = (elementType) => {
+    setSelectedTextElement(elementType)
   }
 
-  const toggleFontSelector = () => {
-    setShowFontSelector(!showFontSelector)
+  const updateTextStyle = (property, value) => {
+    if (!selectedTextElement) return
+    
+    setTextStyles(prev => ({
+      ...prev,
+      [selectedTextElement]: {
+        ...prev[selectedTextElement],
+        [property]: value
+      }
+    }))
+    
+    const elementName = selectedTextElement === 'playerName' ? 'Player Name' : 'Game Info'
+    addToEditHistory(`${elementName} Style Changed`, `${property}: ${value}`)
+  }
+
+  const clearTextSelection = () => {
+    setSelectedTextElement(null)
+  }
+
+  const getTextStyle = (elementType) => {
+    return textStyles[elementType] || textStyles.playerName
   }
 
   const saveAsPNG = async () => {
@@ -1011,6 +1031,81 @@ Total Edits: ${editHistory.length}
                   <button onClick={closePost} className="close-button">×</button>
                 </div>
                 
+                {/* WYSIWYG Text Editor Toolbar */}
+                <div className={`wysiwyg-toolbar ${!selectedTextElement ? 'hidden' : ''}`}>
+                  {selectedTextElement && (
+                    <>
+                      <div className="selected-element-info">
+                        Editing: {selectedTextElement === 'playerName' ? 'Player Name' : 'Game Info'}
+                      </div>
+                      
+                      <div className="toolbar-group">
+                        <span className="toolbar-label">Font</span>
+                        <select 
+                          value={textStyles[selectedTextElement]?.fontFamily || 'Inter'}
+                          onChange={(e) => updateTextStyle('fontFamily', e.target.value)}
+                          className="toolbar-select"
+                        >
+                          <option value="Inter">Inter</option>
+                          <option value="Arial">Arial</option>
+                          <option value="Helvetica">Helvetica</option>
+                          <option value="Georgia">Georgia</option>
+                          <option value="Times New Roman">Times New Roman</option>
+                          <option value="Courier New">Courier New</option>
+                          <option value="Verdana">Verdana</option>
+                          <option value="Impact">Impact</option>
+                          <option value="Trebuchet MS">Trebuchet MS</option>
+                          <option value="Arial Black">Arial Black</option>
+                        </select>
+                      </div>
+                      
+                      <div className="toolbar-group">
+                        <span className="toolbar-label">Size</span>
+                        <input 
+                          type="number"
+                          value={textStyles[selectedTextElement]?.fontSize || 16}
+                          onChange={(e) => updateTextStyle('fontSize', parseInt(e.target.value))}
+                          className="toolbar-input"
+                          min="8"
+                          max="72"
+                        />
+                      </div>
+                      
+                      <div className="toolbar-group">
+                        <span className="toolbar-label">Weight</span>
+                        <select 
+                          value={textStyles[selectedTextElement]?.fontWeight || 400}
+                          onChange={(e) => updateTextStyle('fontWeight', parseInt(e.target.value))}
+                          className="toolbar-select"
+                        >
+                          <option value={300}>Light</option>
+                          <option value={400}>Normal</option>
+                          <option value={500}>Medium</option>
+                          <option value={600}>Semi Bold</option>
+                          <option value={700}>Bold</option>
+                          <option value={800}>Extra Bold</option>
+                        </select>
+                      </div>
+                      
+                      <div className="toolbar-group">
+                        <button 
+                          onClick={() => updateTextStyle('fontStyle', textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'normal' : 'italic')}
+                          className={`toolbar-button ${textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'active' : ''}`}
+                        >
+                          Italic
+                        </button>
+                        
+                        <button 
+                          onClick={clearTextSelection}
+                          className="toolbar-button"
+                        >
+                          Done
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
                 <div className="background-controls">
                   <label className="upload-label">
                     <input 
@@ -1179,6 +1274,81 @@ Total Edits: ${editHistory.length}
             <div className="post-header">
               <h3>Instagram Post Preview</h3>
               <button onClick={closePost} className="close-button">×</button>
+            </div>
+            
+            {/* WYSIWYG Text Editor Toolbar - Mobile */}
+            <div className={`wysiwyg-toolbar ${!selectedTextElement ? 'hidden' : ''}`}>
+              {selectedTextElement && (
+                <>
+                  <div className="selected-element-info">
+                    Editing: {selectedTextElement === 'playerName' ? 'Player Name' : 'Game Info'}
+                  </div>
+                  
+                  <div className="toolbar-group">
+                    <span className="toolbar-label">Font</span>
+                    <select 
+                      value={textStyles[selectedTextElement]?.fontFamily || 'Inter'}
+                      onChange={(e) => updateTextStyle('fontFamily', e.target.value)}
+                      className="toolbar-select"
+                    >
+                      <option value="Inter">Inter</option>
+                      <option value="Arial">Arial</option>
+                      <option value="Helvetica">Helvetica</option>
+                      <option value="Georgia">Georgia</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Courier New">Courier New</option>
+                      <option value="Verdana">Verdana</option>
+                      <option value="Impact">Impact</option>
+                      <option value="Trebuchet MS">Trebuchet MS</option>
+                      <option value="Arial Black">Arial Black</option>
+                    </select>
+                  </div>
+                  
+                  <div className="toolbar-group">
+                    <span className="toolbar-label">Size</span>
+                    <input 
+                      type="number"
+                      value={textStyles[selectedTextElement]?.fontSize || 16}
+                      onChange={(e) => updateTextStyle('fontSize', parseInt(e.target.value))}
+                      className="toolbar-input"
+                      min="8"
+                      max="72"
+                    />
+                  </div>
+                  
+                  <div className="toolbar-group">
+                    <span className="toolbar-label">Weight</span>
+                    <select 
+                      value={textStyles[selectedTextElement]?.fontWeight || 400}
+                      onChange={(e) => updateTextStyle('fontWeight', parseInt(e.target.value))}
+                      className="toolbar-select"
+                    >
+                      <option value={300}>Light</option>
+                      <option value={400}>Normal</option>
+                      <option value={500}>Medium</option>
+                      <option value={600}>Semi Bold</option>
+                      <option value={700}>Bold</option>
+                      <option value={800}>Extra Bold</option>
+                    </select>
+                  </div>
+                  
+                  <div className="toolbar-group">
+                    <button 
+                      onClick={() => updateTextStyle('fontStyle', textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'normal' : 'italic')}
+                      className={`toolbar-button ${textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'active' : ''}`}
+                    >
+                      Italic
+                    </button>
+                    
+                    <button 
+                      onClick={clearTextSelection}
+                      className="toolbar-button"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
             
             <div className="background-controls">
