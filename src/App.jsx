@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share, LogIn, Menu, X, CreditCard, Instagram } from 'lucide-react'
+import { Search, User, Calendar, TrendingUp, Activity, Download, Heart, MessageCircle, Share, LogIn, Menu, X, CreditCard, Instagram, Type, Hash, Bold, Italic, Underline, Palette, ArrowDown } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthModal from './components/AuthModal'
@@ -967,7 +967,7 @@ Total Edits: ${editHistory.length}
                 {selectedTextElement && (
                   <>
                     <div className="toolbar-group">
-                      <span className="toolbar-label">Font</span>
+                      <Type size={16} className="toolbar-icon" />
                       <select 
                         value={textStyles[selectedTextElement]?.fontFamily || 'Inter'}
                         onChange={(e) => updateTextStyle('fontFamily', e.target.value)}
@@ -987,7 +987,7 @@ Total Edits: ${editHistory.length}
                     </div>
                     
                     <div className="toolbar-group">
-                      <span className="toolbar-label">Size</span>
+                      <Hash size={16} className="toolbar-icon" />
                       <input 
                         type="number"
                         value={textStyles[selectedTextElement]?.fontSize || 16}
@@ -999,34 +999,32 @@ Total Edits: ${editHistory.length}
                     </div>
                     
                     <div className="toolbar-group">
-                      <span className="toolbar-label">Weight</span>
-                      <select 
-                        value={textStyles[selectedTextElement]?.fontWeight || 400}
-                        onChange={(e) => updateTextStyle('fontWeight', parseInt(e.target.value))}
-                        className="toolbar-select"
+                      <button 
+                        onClick={() => {
+                          const currentWeight = textStyles[selectedTextElement]?.fontWeight || 400;
+                          const newWeight = currentWeight >= 600 ? 400 : 700;
+                          updateTextStyle('fontWeight', newWeight);
+                        }}
+                        className={`toolbar-button ${(textStyles[selectedTextElement]?.fontWeight || 400) >= 600 ? 'active' : ''}`}
+                        title="Toggle Bold"
                       >
-                        <option value={300}>Light</option>
-                        <option value={400}>Normal</option>
-                        <option value={500}>Medium</option>
-                        <option value={600}>Semi Bold</option>
-                        <option value={700}>Bold</option>
-                        <option value={800}>Extra Bold</option>
-                      </select>
-                    </div>
-                    
-                    <div className="toolbar-group">
+                        <Bold size={16} />
+                      </button>
+                      
                       <button 
                         onClick={() => updateTextStyle('fontStyle', textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'normal' : 'italic')}
                         className={`toolbar-button ${textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'active' : ''}`}
+                        title="Toggle Italic"
                       >
-                        Italic
+                        <Italic size={16} />
                       </button>
                       
                       <button 
                         onClick={clearTextSelection}
-                        className="toolbar-button"
+                        className="toolbar-button done-button"
+                        title="Done Editing"
                       >
-                        Done
+                        <X size={16} />
                       </button>
                     </div>
                   </>
