@@ -667,7 +667,10 @@ Total Edits: ${editHistory.length}
         <div className="header-content">
           <div className="logo" onClick={resetToHomepage}>
             <CreditCard className="logo-icon" />
-            <h1>GameStatCard</h1>
+            <div>
+              <h1>GameStatCard</h1>
+              <p className="subtitle">Create & Share NBA Stats card</p>
+            </div>
           </div>
           
           {/* Desktop Authentication Controls */}
@@ -678,7 +681,7 @@ Total Edits: ${editHistory.length}
                 className="user-account-btn"
               >
                 <User size={16} />
-                {user.email}
+                <span>{user.email}</span>
               </button>
             ) : (
               <button 
@@ -686,19 +689,19 @@ Total Edits: ${editHistory.length}
                   setAuthMode('signin')
                   setShowAuthModal(true)
                 }}
-                className="user-account-btn"
+                className="button button-primary"
               >
                 <LogIn size={16} />
-                Login / Sign Up
+                <span>Login / Sign Up</span>
               </button>
             )}
           </div>
 
           {/* Mobile Hamburger Menu */}
-          <div className="mobile-menu-controls mobile-only">
+          <div className="mobile-only">
             <button 
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="hamburger-btn"
+              className={`hamburger-btn ${showMobileMenu ? 'open' : ''}`}
               aria-label="Toggle menu"
             >
               {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
@@ -750,625 +753,399 @@ Total Edits: ${editHistory.length}
       </header>
 
       <main className="main-content">
-        <div className={`main-layout ${generatedPost ? 'split-view' : 'single-view'}`}>
-          <div className={`generator-section ${generatedPost ? 'has-preview' : ''}`}>
-            <div className="generator-content">
-              <div className="search-section">
-                {/* <div className="section-header">
-                  <p className="subtitle">Generate NBA players game stat card for social media posts</p>
-                </div> */}
-          {/* <div className="search-container">
-            <div className="search-box">
-              <Search className="search-icon" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="NBA player (e.g., LeBron James, Stephen Curry)"
-                className="search-input"
-                disabled={loading}
-              />
-              <button 
-                onClick={handleSearch}
-                disabled={loading || !searchTerm.trim()}
-                className="search-button"
-              >
-                {loading ? 'Searching...' : 'Search'}
-              </button>
-            </div>
-          </div> */}
-
-          {error && (
-            <div className="error-message">
-              <p>{error}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Quick Generator Section */}
-        <div className="quick-generator-section">
-          <div className="quick-generator-container">
-            <div className="quick-search-area">
-              <div className="quick-search-box">
-                <input
-                  type="text"
-                  value={quickSearchTerm}
-                  onChange={(e) => setQuickSearchTerm(e.target.value)}
-                  onKeyPress={handleQuickKeyPress}
-                  placeholder="Quick search NBA player"
-                  className="quick-search-input"
-                  disabled={quickSearchLoading}
-                />
-                <button 
-                  onClick={handleQuickSearch}
-                  disabled={quickSearchLoading || !quickSearchTerm.trim()}
-                  className="quick-search-button"
-                  aria-label="Search"
-                >
-                  <Search size={18} />
-                </button>
+        <div className="main-layout">
+          <div className="generator-section">
+            <div className="card">
+              <div className="card-header">
+                <h2>Quick Generator</h2>
+                <p>Instantly create a stat card for any player's recent game.</p>
               </div>
-
-              {quickSearchResults.length > 0 && (
-                <div className="quick-games-grid">
-                  {quickSearchResults.map((game, index) => (
-                    <div 
-                      key={index} 
-                      className={`quick-game-box ${selectedQuickGame?.game === game.game ? 'selected' : ''}`}
-                      onClick={() => setSelectedQuickGame(game)}
-                    >
-                      <div className="quick-game-date">{game.date}</div>
-                      <div className="quick-game-opponent">{game.opponent}</div>
-                      <div className="quick-game-stats">
-                        <span>{game.points}pts</span>
-                        <span>{game.rebounds}reb</span>
-                        <span>{game.assists}ast</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="format-selection-area">
-              <h4>Post Format</h4>
-              <div className="format-options">
-                <button 
-                  className={`format-option ${postFormat === 'instagram-square' ? 'selected' : ''}`}
-                  onClick={() => setPostFormat('instagram-square')}
-                >
-                  <Instagram size={20} />
-                  <span>IG Square Post</span>
-                </button>
-                <button 
-                  className={`format-option ${postFormat === 'instagram-reel' ? 'selected' : ''}`}
-                  onClick={() => setPostFormat('instagram-reel')}
-                >
-                  <Instagram size={20} />
-                  <span>IG Reel Size</span>
-                </button>
-                <button 
-                  className={`format-option ${postFormat === 'tiktok' ? 'selected' : ''}`}
-                  onClick={() => setPostFormat('tiktok')}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-                  </svg>
-                  <span>TikTok Post</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="generate-button-area">
-              <button 
-                onClick={handleQuickGenerate}
-                disabled={!selectedQuickGame}
-                className="quick-generate-button"
-              >
-                GENERATE
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {loading && (
-          <div className="loading">
-            <div className="spinner"></div>
-            <p>Loading player data...</p>
-          </div>
-        )}
-
-        {selectedPlayer && !loading && (
-          <div className="player-section">
-            <div className="player-info">
-              <div className="player-header">
-                <User className="player-icon" />
-                <div className="player-details">
-                  <h2>{selectedPlayer.name}</h2>
-                  <p className="team">{selectedPlayer.team}</p>
-                  <p className="position">Position: {selectedPlayer.position}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="stats-section">
-              <div className="stats-header">
-                <TrendingUp className="stats-icon" />
-                <h3>Last 5 Games Statistics</h3>
-              </div>
-              
-              <div className="stats-table-container">
-                <table className="stats-table">
-                  <thead>
-                    <tr>
-                      <th><Calendar size={16} /> Date</th>
-                      <th>OPP</th>
-                      <th>PTS</th>
-                      <th>REB</th>
-                      <th>AST</th>
-                      <th>STL</th>
-                      <th>BLK</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {gameStats.map((game, index) => (
-                      <tr key={index} className="stats-row">
-                        <td>{game.date}</td>
-                        <td>{game.opponent}</td>
-                        <td className="stat-points">{game.points}</td>
-                        <td>{game.rebounds}</td>
-                        <td>{game.assists}</td>
-                        <td>{game.steals}</td>
-                        <td>{game.blocks}</td>
-                        <td>
-                          <button 
-                            onClick={() => generateIGPost(game, selectedPlayer.name)}
-                            className="generate-button"
-                          >
-                            Generate
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="stats-summary">
-                <div className="summary-card">
-                  <h4>Averages (Last 5 Games)</h4>
-                  <div className="avg-stats">
-                    <span>PPG: {(gameStats.reduce((sum, game) => sum + game.points, 0) / gameStats.length).toFixed(1)}</span>
-                    <span>RPG: {(gameStats.reduce((sum, game) => sum + game.rebounds, 0) / gameStats.length).toFixed(1)}</span>
-                    <span>APG: {(gameStats.reduce((sum, game) => sum + game.assists, 0) / gameStats.length).toFixed(1)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!selectedPlayer && !loading && !error && (
-          <>
-            <div className="welcome-message">
-              <CreditCard size={64} className="welcome-icon" />
-              <h3>Welcome to NBA Stats Tracker</h3>
-              <p>Search for your favorite NBA players to view their recent game statistics.</p>
-              <div className="suggested-players">
-                <p>Try searching for:</p>
-                <div className="player-chips">
-                  {mockPlayers.slice(0, 4).map(player => (
+              <div className="quick-generator-container">
+                <div className="form-group">
+                  <label htmlFor="quick-search">Player Name</label>
+                  <div className="quick-search-box">
+                    <input
+                      id="quick-search"
+                      type="text"
+                      value={quickSearchTerm}
+                      onChange={(e) => setQuickSearchTerm(e.target.value)}
+                      onKeyPress={handleQuickKeyPress}
+                      placeholder="e.g., LeBron James"
+                      className="input"
+                      disabled={quickSearchLoading}
+                    />
                     <button 
-                      key={player.id}
-                      onClick={() => setSearchTerm(player.name)}
-                      className="player-chip"
+                      onClick={handleQuickSearch}
+                      disabled={quickSearchLoading || !quickSearchTerm.trim()}
+                      className="button button-primary"
+                      aria-label="Search"
                     >
-                      {player.name}
+                      <Search size={18} />
                     </button>
+                  </div>
+                </div>
+
+                {quickSearchResults.length > 0 && (
+                  <div className="form-group">
+                    <label>Select Game</label>
+                    <div className="quick-games-grid">
+                      {quickSearchResults.map((game, index) => (
+                        <div 
+                          key={index} 
+                          className={`quick-game-box ${selectedQuickGame?.game === game.game ? 'selected' : ''}`}
+                          onClick={() => setSelectedQuickGame(game)}
+                        >
+                          <div className="quick-game-date">{game.date}</div>
+                          <div className="quick-game-opponent">{game.opponent}</div>
+                          <div className="quick-game-stats">
+                            <span>{game.points}pts</span>
+                            <span>{game.rebounds}reb</span>
+                            <span>{game.assists}ast</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label>Post Format</label>
+                  <div className="format-options">
+                    <button 
+                      className={`format-option ${postFormat === 'instagram-square' ? 'selected' : ''}`}
+                      onClick={() => setPostFormat('instagram-square')}
+                    >
+                      <Instagram size={20} />
+                      <span>IG Square</span>
+                    </button>
+                    <button 
+                      className={`format-option ${postFormat === 'instagram-reel' ? 'selected' : ''}`}
+                      onClick={() => setPostFormat('instagram-reel')}
+                    >
+                      <Instagram size={20} />
+                      <span>IG Reel</span>
+                    </button>
+                    <button 
+                      className={`format-option ${postFormat === 'tiktok' ? 'selected' : ''}`}
+                      onClick={() => setPostFormat('tiktok')}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                      </svg>
+                      <span>TikTok</span>
+                    </button>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={handleQuickGenerate}
+                  disabled={!selectedQuickGame}
+                  className="button button-primary"
+                  style={{ width: '100%', marginTop: '1rem' }}
+                >
+                  GENERATE
+                </button>
+              </div>
+            </div>
+
+            {loading && (
+              <div className="loading">
+                <div className="spinner"></div>
+                <p>Loading player data...</p>
+              </div>
+            )}
+
+            {selectedPlayer && !loading && (
+              <div className="card">
+                <div className="player-section">
+                  <div className="player-header">
+                    <User className="player-icon" />
+                    <div className="player-details">
+                      <h2>{selectedPlayer.name}</h2>
+                      <p className="team">{selectedPlayer.team}</p>
+                      <p className="position">Position: {selectedPlayer.position}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="stats-section">
+                  <div className="stats-header">
+                    <TrendingUp className="stats-icon" />
+                    <h3>Last 5 Games Statistics</h3>
+                  </div>
+                  
+                  <div className="stats-table-container">
+                    <table className="stats-table">
+                      <thead>
+                        <tr>
+                          <th><Calendar size={16} /> Date</th>
+                          <th>OPP</th>
+                          <th>PTS</th>
+                          <th>REB</th>
+                          <th>AST</th>
+                          <th>STL</th>
+                          <th>BLK</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {gameStats.map((game, index) => (
+                          <tr key={index} className="stats-row">
+                            <td>{game.date}</td>
+                            <td>{game.opponent}</td>
+                            <td className="stat-points">{game.points}</td>
+                            <td>{game.rebounds}</td>
+                            <td>{game.assists}</td>
+                            <td>{game.steals}</td>
+                            <td>{game.blocks}</td>
+                            <td>
+                              <button 
+                                onClick={() => generateIGPost(game, selectedPlayer.name)}
+                                className="button button-secondary"
+                              >
+                                Generate
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!selectedPlayer && !loading && !error && (
+              <div className="card">
+                <div className="card-header">
+                  <h2>Community Gallery</h2>
+                  <p>Discover amazing stat cards created by our community.</p>
+                </div>
+                <div className="posts-grid">
+                  {mockIGPosts.map(post => (
+                    <div key={post.id} className="post-card">
+                      <div 
+                        className="post-image-clean"
+                        style={post.photo ? {
+                          backgroundImage: `url(${post.photo})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat'
+                        } : {}}
+                      >
+                        {/* Clean photo display - no overlays */}
+                      </div>
+                      <div className="post-meta">
+                        <div className="post-date">{post.date}</div>
+                        <div className="post-engagement">
+                          <div className="engagement-item">
+                            <Heart className="engagement-icon" />
+                            <span>{post.likes}</span>
+                          </div>
+                          <div className="engagement-item">
+                            <MessageCircle className="engagement-icon" />
+                            <span>{post.comments}</span>
+                          </div>
+                          <div className="engagement-item">
+                            <Share className="engagement-icon" />
+                            <span>{post.shares}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
-            </div>
+            )}
+          </div>
 
-            <div className="ig-posts-gallery">
-              <div className="gallery-header">
-                <h3>Community GameStatCard</h3>
-                {/* <div className="gallery-hashtag">
-                  <CreditCard size={16} />
-                  #ae5history
-                </div> */}
-                <p className="gallery-description">
-                  Discover amazing stat cards created by our community. <br/>Get inspired and create your own unique NBA player cards!
-                </p>
+          {generatedPost && (
+            <div className="preview-section">
+              <div className="preview-header">
+                <h3>Preview</h3>
+                <button onClick={closePost} className="close-button">×</button>
               </div>
               
-              <div className="posts-grid">
-                {mockIGPosts.map(post => (
-                  <div key={post.id} className="post-card">
-                    <div 
-                      className="post-image-clean"
-                      style={post.photo ? {
-                        backgroundImage: `url(${post.photo})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
-                      } : {}}
-                    >
-                      {/* Clean photo display - no overlays */}
+              {/* WYSIWYG Text Editor Toolbar */}
+              <div className={`wysiwyg-toolbar ${!selectedTextElement ? 'hidden' : ''}`}>
+                {selectedTextElement && (
+                  <>
+                    <div className="toolbar-group">
+                      <span className="toolbar-label">Font</span>
+                      <select 
+                        value={textStyles[selectedTextElement]?.fontFamily || 'Inter'}
+                        onChange={(e) => updateTextStyle('fontFamily', e.target.value)}
+                        className="toolbar-select"
+                      >
+                        <option value="Inter">Inter</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Impact">Impact</option>
+                        <option value="Trebuchet MS">Trebuchet MS</option>
+                        <option value="Arial Black">Arial Black</option>
+                      </select>
                     </div>
-                    <div className="post-meta">
-                      <div className="post-date">{post.date}</div>
-                      <div className="post-engagement">
-                        <div className="engagement-item">
-                          <Heart className="engagement-icon" />
-                          <span>{post.likes}</span>
+                    
+                    <div className="toolbar-group">
+                      <span className="toolbar-label">Size</span>
+                      <input 
+                        type="number"
+                        value={textStyles[selectedTextElement]?.fontSize || 16}
+                        onChange={(e) => updateTextStyle('fontSize', parseInt(e.target.value))}
+                        className="toolbar-input"
+                        min="8"
+                        max="72"
+                      />
+                    </div>
+                    
+                    <div className="toolbar-group">
+                      <span className="toolbar-label">Weight</span>
+                      <select 
+                        value={textStyles[selectedTextElement]?.fontWeight || 400}
+                        onChange={(e) => updateTextStyle('fontWeight', parseInt(e.target.value))}
+                        className="toolbar-select"
+                      >
+                        <option value={300}>Light</option>
+                        <option value={400}>Normal</option>
+                        <option value={500}>Medium</option>
+                        <option value={600}>Semi Bold</option>
+                        <option value={700}>Bold</option>
+                        <option value={800}>Extra Bold</option>
+                      </select>
+                    </div>
+                    
+                    <div className="toolbar-group">
+                      <button 
+                        onClick={() => updateTextStyle('fontStyle', textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'normal' : 'italic')}
+                        className={`toolbar-button ${textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'active' : ''}`}
+                      >
+                        Italic
+                      </button>
+                      
+                      <button 
+                        onClick={clearTextSelection}
+                        className="toolbar-button"
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+              
+              <div className="preview-canvas">
+                <div 
+                  id="post-to-generate"
+                  className="ig-post"
+                  ref={postRef}
+                >
+                  <div 
+                    className="ig-post-background"
+                    onMouseDown={handleBackgroundMouseDown}
+                    onMouseMove={handleBackgroundMouseMove}
+                    onMouseUp={handleBackgroundMouseUp}
+                    onMouseLeave={handleBackgroundMouseUp}
+                    style={backgroundImage ? {
+                      backgroundImage: `url(${backgroundImage})`,
+                      backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px`,
+                      backgroundSize: `${100 * backgroundScale}%`,
+                      cursor: isDraggingBackground ? 'grabbing' : 'grab'
+                    } : {
+                      cursor: 'default'
+                    }}
+                  >
+                    <div 
+                      className="ig-post-header-info drop-zone"
+                      onDragOver={handleDragOver}
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, 'header')}
+                    >
+                      {renderBothElements('header')}
+                    </div>
+                    
+                    <div className="ig-stats-display">
+                      <div 
+                        className="ig-main-stats drop-zone"
+                        onDragOver={handleDragOver}
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, 'top-stats')}
+                      >
+                        {(gameInfoPosition === 'top-stats' || playerNamePosition === 'top-stats') && (
+                          <div className="elements-in-stats">
+                            {renderBothElements('top-stats')}
+                          </div>
+                        )}
+                        <div className="ig-stat-item">
+                          <span className="ig-stat-value">{generatedPost.points}</span>
+                          <span className="ig-stat-label">POINTS</span>
                         </div>
-                        <div className="engagement-item">
-                          <MessageCircle className="engagement-icon" />
-                          <span>{post.comments}</span>
+                        <div className="ig-stat-item">
+                          <span className="ig-stat-value">{generatedPost.rebounds}</span>
+                          <span className="ig-stat-label">REBOUNDS</span>
                         </div>
-                        <div className="engagement-item">
-                          <Share className="engagement-icon" />
-                          <span>{post.shares}</span>
+                        <div className="ig-stat-item">
+                          <span className="ig-stat-value">{generatedPost.assists}</span>
+                          <span className="ig-stat-label">ASSISTS</span>
                         </div>
+                      </div>
+                      
+                      {showSecondaryStats && (
+                        <div className="ig-secondary-stats" onClick={removeSecondaryStats}>
+                          <div className="ig-secondary-stat">
+                            <span>{generatedPost.steals} STL</span>
+                          </div>
+                          <div className="ig-secondary-stat">
+                            <span>{generatedPost.blocks} BLK</span>
+                          </div>
+                          <div className="ig-secondary-stat">
+                            <span>{generatedPost.fgPercentage} FG%</span>
+                          </div>
+                          <div className="ig-secondary-stat">
+                            <span>{generatedPost.minutes} MIN</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div 
+                        className="ig-bottom-section drop-zone"
+                        onDragOver={handleDragOver}
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, 'bottom-stats')}
+                      >
+                        {(gameInfoPosition === 'bottom-stats' || playerNamePosition === 'bottom-stats') && (
+                          <div className="elements-in-bottom">
+                            {renderBothElements('bottom-stats')}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
-          </>
-        )}
-            </div>
-
-            {/* Preview Section - Desktop Only - Inside Generator */}
-            {generatedPost && (
-              <div className="preview-section desktop-only">
-                <div className="preview-header">
-                  <h3>Preview</h3>
-                  <button onClick={closePost} className="close-button">×</button>
-                </div>
-                
-                {/* WYSIWYG Text Editor Toolbar */}
-                <div className={`wysiwyg-toolbar ${!selectedTextElement ? 'hidden' : ''}`}>
-                  {selectedTextElement && (
-                    <>
-                      <div className="selected-element-info">
-                        Editing: {selectedTextElement === 'playerName' ? 'Player Name' : 'Game Info'}
-                      </div>
-                      
-                      <div className="toolbar-group">
-                        <span className="toolbar-label">Font</span>
-                        <select 
-                          value={textStyles[selectedTextElement]?.fontFamily || 'Inter'}
-                          onChange={(e) => updateTextStyle('fontFamily', e.target.value)}
-                          className="toolbar-select"
-                        >
-                          <option value="Inter">Inter</option>
-                          <option value="Arial">Arial</option>
-                          <option value="Helvetica">Helvetica</option>
-                          <option value="Georgia">Georgia</option>
-                          <option value="Times New Roman">Times New Roman</option>
-                          <option value="Courier New">Courier New</option>
-                          <option value="Verdana">Verdana</option>
-                          <option value="Impact">Impact</option>
-                          <option value="Trebuchet MS">Trebuchet MS</option>
-                          <option value="Arial Black">Arial Black</option>
-                        </select>
-                      </div>
-                      
-                      <div className="toolbar-group">
-                        <span className="toolbar-label">Size</span>
-                        <input 
-                          type="number"
-                          value={textStyles[selectedTextElement]?.fontSize || 16}
-                          onChange={(e) => updateTextStyle('fontSize', parseInt(e.target.value))}
-                          className="toolbar-input"
-                          min="8"
-                          max="72"
-                        />
-                      </div>
-                      
-                      <div className="toolbar-group">
-                        <span className="toolbar-label">Weight</span>
-                        <select 
-                          value={textStyles[selectedTextElement]?.fontWeight || 400}
-                          onChange={(e) => updateTextStyle('fontWeight', parseInt(e.target.value))}
-                          className="toolbar-select"
-                        >
-                          <option value={300}>Light</option>
-                          <option value={400}>Normal</option>
-                          <option value={500}>Medium</option>
-                          <option value={600}>Semi Bold</option>
-                          <option value={700}>Bold</option>
-                          <option value={800}>Extra Bold</option>
-                        </select>
-                      </div>
-                      
-                      <div className="toolbar-group">
-                        <button 
-                          onClick={() => updateTextStyle('fontStyle', textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'normal' : 'italic')}
-                          className={`toolbar-button ${textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'active' : ''}`}
-                        >
-                          Italic
-                        </button>
-                        
-                        <button 
-                          onClick={clearTextSelection}
-                          className="toolbar-button"
-                        >
-                          Done
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-                
-                <div className="background-controls">
-                  <label className="upload-label">
+              
+              <div className="post-actions">
+                <div className="form-group">
+                  <label className="button button-secondary" style={{width: '100%', textAlign: 'center'}}>
                     <input 
                       type="file" 
                       accept="image/*" 
                       onChange={handleImageUpload}
                       style={{ display: 'none' }}
                     />
-                    📷 Add Background Image
+                    📷 Change Background
                   </label>
-                  
-                  {backgroundImage && (
-                    <>
-                      <button onClick={removeBackgroundImage} className="remove-bg-btn">
-                        Remove Background
-                      </button>
-                      <div className="scale-control">
-                        <label>Scale: </label>
-                        <input
-                          type="range"
-                          min="0.5"
-                          max="3"
-                          step="0.1"
-                          value={backgroundScale}
-                          onChange={handleScaleChange}
-                        />
-                        <span>{backgroundScale.toFixed(1)}x</span>
-                      </div>
-                    </>
-                  )}
                 </div>
-                
-                <div className="ig-post">
-                  <div className="ig-post-content" ref={postRef}>
-                    <div 
-                      className="ig-post-background"
-                      onMouseDown={handleBackgroundMouseDown}
-                      onMouseMove={handleBackgroundMouseMove}
-                      onMouseUp={handleBackgroundMouseUp}
-                      onMouseLeave={handleBackgroundMouseUp}
-                      style={backgroundImage ? {
-                        backgroundImage: `url(${backgroundImage})`,
-                        backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px`,
-                        backgroundSize: `${100 * backgroundScale}%`,
-                        cursor: isDraggingBackground ? 'grabbing' : 'grab'
-                      } : {
-                        cursor: 'default'
-                      }}
-                    >
-                      <div 
-                        className="ig-post-header-info drop-zone"
-                        onDragOver={handleDragOver}
-                        onDragEnter={handleDragEnter}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, 'header')}
-                      >
-                        {renderBothElements('header')}
-                      </div>
-                      
-                      <div className="ig-stats-display">
-                        <div 
-                          className="ig-main-stats drop-zone"
-                          onDragOver={handleDragOver}
-                          onDragEnter={handleDragEnter}
-                          onDragLeave={handleDragLeave}
-                          onDrop={(e) => handleDrop(e, 'top-stats')}
-                        >
-                          {(gameInfoPosition === 'top-stats' || playerNamePosition === 'top-stats') && (
-                            <div className="elements-in-stats">
-                              {renderBothElements('top-stats')}
-                            </div>
-                          )}
-                          <div className="ig-stat-item">
-                            <span className="ig-stat-value">{generatedPost.points}</span>
-                            <span className="ig-stat-label">POINTS</span>
-                          </div>
-                          <div className="ig-stat-item">
-                            <span className="ig-stat-value">{generatedPost.rebounds}</span>
-                            <span className="ig-stat-label">REBOUNDS</span>
-                          </div>
-                          <div className="ig-stat-item">
-                            <span className="ig-stat-value">{generatedPost.assists}</span>
-                            <span className="ig-stat-label">ASSISTS</span>
-                          </div>
-                        </div>
-                        
-                        {showSecondaryStats && (
-                          <div className="ig-secondary-stats" onClick={removeSecondaryStats}>
-                            <div className="ig-secondary-stat">
-                              <span>{generatedPost.steals} STL</span>
-                            </div>
-                            <div className="ig-secondary-stat">
-                              <span>{generatedPost.blocks} BLK</span>
-                            </div>
-                            <div className="ig-secondary-stat">
-                              <span>{generatedPost.fgPercentage} FG%</span>
-                            </div>
-                            <div className="ig-secondary-stat">
-                              <span>{generatedPost.minutes} MIN</span>
-                            </div>
-                          </div>
-                        )}
-                        
-                        <div 
-                          className="ig-bottom-section drop-zone"
-                          onDragOver={handleDragOver}
-                          onDragEnter={handleDragEnter}
-                          onDragLeave={handleDragLeave}
-                          onDrop={(e) => handleDrop(e, 'bottom-stats')}
-                        >
-                          {(gameInfoPosition === 'bottom-stats' || playerNamePosition === 'bottom-stats') && (
-                            <div className="elements-in-bottom">
-                              {renderBothElements('bottom-stats')}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="post-actions">
-                    <button onClick={saveAsPNG} className="save-button">
-                      <Download size={16} />
-                      Save as PNG
-                    </button>
-                    
-                    {editHistory.length > 0 && (
-                      <div className="edit-history">
-                        <h4>Edit History ({editHistory.length} changes)</h4>
-                        <div className="edit-history-list">
-                          {editHistory.slice(-5).map((edit) => (
-                            <div key={edit.id} className="edit-item">
-                              <span className="edit-action">{edit.action}</span>
-                              <span className="edit-details">{edit.details}</span>
-                              <span className="edit-time">{edit.timestamp}</span>
-                            </div>
-                          ))}
-                          {editHistory.length > 5 && (
-                            <div className="edit-item more-edits">
-                              ... and {editHistory.length - 5} more changes
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    
-                    <p className="post-note">Click "Save as PNG" to download the image + edit history</p>
-                    <p className="post-note">💡 Tip: Click the detailed stats to remove them permanently</p>
-                    <p className="post-note">🔄 Tip: Click the game info to toggle date/opponent display</p>
-                    <p className="post-note">⟷ Tip: Drag the game info between sections (header ↔ stats ↔ bottom)</p>
-                    <p className="post-note">🎨 Tip: Click the player name to change font style</p>
-                    <p className="post-note">📍 Tip: Drag the player name between sections like the game info</p>
-                    <p className="post-note">↔️ Tip: When both elements are in the same section, drag left/right to switch positions</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
 
-      {/* Instagram Post Generator Modal - Mobile Only */}
-      {generatedPost && (
-        <div className="post-overlay mobile-only" onClick={closePost}>
-          <div className="post-container" onClick={(e) => e.stopPropagation()}>
-            <div className="post-header">
-              <h3>Instagram Post Preview</h3>
-              <button onClick={closePost} className="close-button">×</button>
-            </div>
-            
-            {/* WYSIWYG Text Editor Toolbar - Mobile */}
-            <div className={`wysiwyg-toolbar ${!selectedTextElement ? 'hidden' : ''}`}>
-              {selectedTextElement && (
-                <>
-                  <div className="selected-element-info">
-                    Editing: {selectedTextElement === 'playerName' ? 'Player Name' : 'Game Info'}
-                  </div>
-                  
-                  <div className="toolbar-group">
-                    <span className="toolbar-label">Font</span>
-                    <select 
-                      value={textStyles[selectedTextElement]?.fontFamily || 'Inter'}
-                      onChange={(e) => updateTextStyle('fontFamily', e.target.value)}
-                      className="toolbar-select"
-                    >
-                      <option value="Inter">Inter</option>
-                      <option value="Arial">Arial</option>
-                      <option value="Helvetica">Helvetica</option>
-                      <option value="Georgia">Georgia</option>
-                      <option value="Times New Roman">Times New Roman</option>
-                      <option value="Courier New">Courier New</option>
-                      <option value="Verdana">Verdana</option>
-                      <option value="Impact">Impact</option>
-                      <option value="Trebuchet MS">Trebuchet MS</option>
-                      <option value="Arial Black">Arial Black</option>
-                    </select>
-                  </div>
-                  
-                  <div className="toolbar-group">
-                    <span className="toolbar-label">Size</span>
-                    <input 
-                      type="number"
-                      value={textStyles[selectedTextElement]?.fontSize || 16}
-                      onChange={(e) => updateTextStyle('fontSize', parseInt(e.target.value))}
-                      className="toolbar-input"
-                      min="8"
-                      max="72"
-                    />
-                  </div>
-                  
-                  <div className="toolbar-group">
-                    <span className="toolbar-label">Weight</span>
-                    <select 
-                      value={textStyles[selectedTextElement]?.fontWeight || 400}
-                      onChange={(e) => updateTextStyle('fontWeight', parseInt(e.target.value))}
-                      className="toolbar-select"
-                    >
-                      <option value={300}>Light</option>
-                      <option value={400}>Normal</option>
-                      <option value={500}>Medium</option>
-                      <option value={600}>Semi Bold</option>
-                      <option value={700}>Bold</option>
-                      <option value={800}>Extra Bold</option>
-                    </select>
-                  </div>
-                  
-                  <div className="toolbar-group">
-                    <button 
-                      onClick={() => updateTextStyle('fontStyle', textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'normal' : 'italic')}
-                      className={`toolbar-button ${textStyles[selectedTextElement]?.fontStyle === 'italic' ? 'active' : ''}`}
-                    >
-                      Italic
-                    </button>
-                    
-                    <button 
-                      onClick={clearTextSelection}
-                      className="toolbar-button"
-                    >
-                      Done
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-            
-            <div className="background-controls">
-              <label className="upload-label">
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleImageUpload}
-                  style={{ display: 'none' }}
-                />
-                📷 Add Background Image
-              </label>
-              
-              {backgroundImage && (
-                <>
-                  <button onClick={removeBackgroundImage} className="remove-bg-btn">
-                    Remove Background
-                  </button>
-                  <div className="scale-control">
-                    <label>Scale: </label>
+                {backgroundImage && (
+                  <div className="form-group">
+                    <label>Background Scale</label>
                     <input
                       type="range"
                       min="0.5"
@@ -1376,141 +1153,22 @@ Total Edits: ${editHistory.length}
                       step="0.1"
                       value={backgroundScale}
                       onChange={handleScaleChange}
+                      className="slider"
                     />
-                    <span>{backgroundScale.toFixed(1)}x</span>
                   </div>
-                </>
-              )}
-            </div>
-            
-            <div className="ig-post">
-              <div className="ig-post-content" ref={postRef}>
-                <div 
-                  className="ig-post-background"
-                  onMouseDown={handleBackgroundMouseDown}
-                  onMouseMove={handleBackgroundMouseMove}
-                  onMouseUp={handleBackgroundMouseUp}
-                  onMouseLeave={handleBackgroundMouseUp}
-                  style={backgroundImage ? {
-                    backgroundImage: `url(${backgroundImage})`,
-                    backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px`,
-                    backgroundSize: `${100 * backgroundScale}%`,
-                    cursor: isDraggingBackground ? 'grabbing' : 'grab'
-                  } : {
-                    cursor: 'default'
-                  }}
-                >
-                  <div 
-                    className="ig-post-header-info drop-zone"
-                    onDragOver={handleDragOver}
-                    onDragEnter={handleDragEnter}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, 'header')}
-                  >
-                    {renderBothElements('header')}
-                  </div>
-                  
-                  <div className="ig-stats-display">
-                    <div 
-                      className="ig-main-stats drop-zone"
-                      onDragOver={handleDragOver}
-                      onDragEnter={handleDragEnter}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, 'top-stats')}
-                    >
-                      {(gameInfoPosition === 'top-stats' || playerNamePosition === 'top-stats') && (
-                        <div className="elements-in-stats">
-                          {renderBothElements('top-stats')}
-                        </div>
-                      )}
-                      <div className="ig-stat-item">
-                        <span className="ig-stat-value">{generatedPost.points}</span>
-                        <span className="ig-stat-label">POINTS</span>
-                      </div>
-                      <div className="ig-stat-item">
-                        <span className="ig-stat-value">{generatedPost.rebounds}</span>
-                        <span className="ig-stat-label">REBOUNDS</span>
-                      </div>
-                      <div className="ig-stat-item">
-                        <span className="ig-stat-value">{generatedPost.assists}</span>
-                        <span className="ig-stat-label">ASSISTS</span>
-                      </div>
-                    </div>
-                    
-                    {showSecondaryStats && (
-                      <div className="ig-secondary-stats" onClick={removeSecondaryStats}>
-                        <div className="ig-secondary-stat">
-                          <span>{generatedPost.steals} STL</span>
-                        </div>
-                        <div className="ig-secondary-stat">
-                          <span>{generatedPost.blocks} BLK</span>
-                        </div>
-                        <div className="ig-secondary-stat">
-                          <span>{generatedPost.fgPercentage} FG%</span>
-                        </div>
-                        <div className="ig-secondary-stat">
-                          <span>{generatedPost.minutes} MIN</span>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div 
-                      className="ig-bottom-section drop-zone"
-                      onDragOver={handleDragOver}
-                      onDragEnter={handleDragEnter}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, 'bottom-stats')}
-                    >
-                      {(gameInfoPosition === 'bottom-stats' || playerNamePosition === 'bottom-stats') && (
-                        <div className="elements-in-bottom">
-                          {renderBothElements('bottom-stats')}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="post-actions">
-                <button onClick={saveAsPNG} className="save-button">
+                )}
+
+                <button onClick={saveAsPNG} className="button button-primary" style={{width: '100%'}}>
                   <Download size={16} />
                   Save as PNG
                 </button>
-                
-                {editHistory.length > 0 && (
-                  <div className="edit-history">
-                    <h4>Edit History ({editHistory.length} changes)</h4>
-                    <div className="edit-history-list">
-                      {editHistory.slice(-5).map((edit) => (
-                        <div key={edit.id} className="edit-item">
-                          <span className="edit-action">{edit.action}</span>
-                          <span className="edit-details">{edit.details}</span>
-                          <span className="edit-time">{edit.timestamp}</span>
-                        </div>
-                      ))}
-                      {editHistory.length > 5 && (
-                        <div className="edit-item more-edits">
-                          ... and {editHistory.length - 5} more changes
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                
-                <p className="post-note">Click "Save as PNG" to download the image + edit history</p>
-                <p className="post-note">💡 Tip: Click the detailed stats to remove them permanently</p>
-                <p className="post-note">🔄 Tip: Click the game info to toggle date/opponent display</p>
-                <p className="post-note">⟷ Tip: Drag the game info between sections (header ↔ stats ↔ bottom)</p>
-                <p className="post-note">🎨 Tip: Click the player name to change font style</p>
-                <p className="post-note">📍 Tip: Drag the player name between sections like the game info</p>
-                <p className="post-note">↔️ Tip: When both elements are in the same section, drag left/right to switch positions</p>
               </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </main>
 
-      {/* Authentication Modal */}
+      {/* Modals */}
       <AuthModal 
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
