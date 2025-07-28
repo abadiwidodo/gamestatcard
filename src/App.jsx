@@ -730,10 +730,13 @@ Total Edits: ${editHistory.length}
       </header>
 
       <main className="main-content">
-        <div className="search-section">
-          <div className="section-header">
-            <p className="subtitle">Generate NBA players game stat card for social media posts</p>
-          </div>
+        <div className={`main-layout ${generatedPost ? 'split-view' : 'single-view'}`}>
+          <div className={`generator-section ${generatedPost ? 'has-preview' : ''}`}>
+            <div className="generator-content">
+              <div className="search-section">
+                {/* <div className="section-header">
+                  <p className="subtitle">Generate NBA players game stat card for social media posts</p>
+                </div> */}
           {/* <div className="search-container">
             <div className="search-box">
               <Search className="search-icon" />
@@ -809,7 +812,7 @@ Total Edits: ${editHistory.length}
             </div>
 
             <div className="format-selection-area">
-              <h4>Select Post Format</h4>
+              <h4>Post Format</h4>
               <div className="format-options">
                 <button 
                   className={`format-option ${postFormat === 'instagram-square' ? 'selected' : ''}`}
@@ -998,11 +1001,180 @@ Total Edits: ${editHistory.length}
             </div>
           </>
         )}
+            </div>
+
+            {/* Preview Section - Desktop Only - Inside Generator */}
+            {generatedPost && (
+              <div className="preview-section desktop-only">
+                <div className="preview-header">
+                  <h3>Preview</h3>
+                  <button onClick={closePost} className="close-button">×</button>
+                </div>
+                
+                <div className="background-controls">
+                  <label className="upload-label">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleImageUpload}
+                      style={{ display: 'none' }}
+                    />
+                    📷 Add Background Image
+                  </label>
+                  
+                  {backgroundImage && (
+                    <>
+                      <button onClick={removeBackgroundImage} className="remove-bg-btn">
+                        Remove Background
+                      </button>
+                      <div className="scale-control">
+                        <label>Scale: </label>
+                        <input
+                          type="range"
+                          min="0.5"
+                          max="3"
+                          step="0.1"
+                          value={backgroundScale}
+                          onChange={handleScaleChange}
+                        />
+                        <span>{backgroundScale.toFixed(1)}x</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                <div className="ig-post">
+                  <div className="ig-post-content" ref={postRef}>
+                    <div 
+                      className="ig-post-background"
+                      onMouseDown={handleBackgroundMouseDown}
+                      onMouseMove={handleBackgroundMouseMove}
+                      onMouseUp={handleBackgroundMouseUp}
+                      onMouseLeave={handleBackgroundMouseUp}
+                      style={backgroundImage ? {
+                        backgroundImage: `url(${backgroundImage})`,
+                        backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px`,
+                        backgroundSize: `${100 * backgroundScale}%`,
+                        cursor: isDraggingBackground ? 'grabbing' : 'grab'
+                      } : {
+                        cursor: 'default'
+                      }}
+                    >
+                      <div 
+                        className="ig-post-header-info drop-zone"
+                        onDragOver={handleDragOver}
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, 'header')}
+                      >
+                        {renderBothElements('header')}
+                      </div>
+                      
+                      <div className="ig-stats-display">
+                        <div 
+                          className="ig-main-stats drop-zone"
+                          onDragOver={handleDragOver}
+                          onDragEnter={handleDragEnter}
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => handleDrop(e, 'top-stats')}
+                        >
+                          {(gameInfoPosition === 'top-stats' || playerNamePosition === 'top-stats') && (
+                            <div className="elements-in-stats">
+                              {renderBothElements('top-stats')}
+                            </div>
+                          )}
+                          <div className="ig-stat-item">
+                            <span className="ig-stat-value">{generatedPost.points}</span>
+                            <span className="ig-stat-label">POINTS</span>
+                          </div>
+                          <div className="ig-stat-item">
+                            <span className="ig-stat-value">{generatedPost.rebounds}</span>
+                            <span className="ig-stat-label">REBOUNDS</span>
+                          </div>
+                          <div className="ig-stat-item">
+                            <span className="ig-stat-value">{generatedPost.assists}</span>
+                            <span className="ig-stat-label">ASSISTS</span>
+                          </div>
+                        </div>
+                        
+                        {showSecondaryStats && (
+                          <div className="ig-secondary-stats" onClick={removeSecondaryStats}>
+                            <div className="ig-secondary-stat">
+                              <span>{generatedPost.steals} STL</span>
+                            </div>
+                            <div className="ig-secondary-stat">
+                              <span>{generatedPost.blocks} BLK</span>
+                            </div>
+                            <div className="ig-secondary-stat">
+                              <span>{generatedPost.fgPercentage} FG%</span>
+                            </div>
+                            <div className="ig-secondary-stat">
+                              <span>{generatedPost.minutes} MIN</span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div 
+                          className="ig-bottom-section drop-zone"
+                          onDragOver={handleDragOver}
+                          onDragEnter={handleDragEnter}
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => handleDrop(e, 'bottom-stats')}
+                        >
+                          {(gameInfoPosition === 'bottom-stats' || playerNamePosition === 'bottom-stats') && (
+                            <div className="elements-in-bottom">
+                              {renderBothElements('bottom-stats')}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="post-actions">
+                    <button onClick={saveAsPNG} className="save-button">
+                      <Download size={16} />
+                      Save as PNG
+                    </button>
+                    
+                    {editHistory.length > 0 && (
+                      <div className="edit-history">
+                        <h4>Edit History ({editHistory.length} changes)</h4>
+                        <div className="edit-history-list">
+                          {editHistory.slice(-5).map((edit) => (
+                            <div key={edit.id} className="edit-item">
+                              <span className="edit-action">{edit.action}</span>
+                              <span className="edit-details">{edit.details}</span>
+                              <span className="edit-time">{edit.timestamp}</span>
+                            </div>
+                          ))}
+                          {editHistory.length > 5 && (
+                            <div className="edit-item more-edits">
+                              ... and {editHistory.length - 5} more changes
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <p className="post-note">Click "Save as PNG" to download the image + edit history</p>
+                    <p className="post-note">💡 Tip: Click the detailed stats to remove them permanently</p>
+                    <p className="post-note">🔄 Tip: Click the game info to toggle date/opponent display</p>
+                    <p className="post-note">⟷ Tip: Drag the game info between sections (header ↔ stats ↔ bottom)</p>
+                    <p className="post-note">🎨 Tip: Click the player name to change font style</p>
+                    <p className="post-note">📍 Tip: Drag the player name between sections like the game info</p>
+                    <p className="post-note">↔️ Tip: When both elements are in the same section, drag left/right to switch positions</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </main>
 
-      {/* Instagram Post Generator Modal */}
+      {/* Instagram Post Generator Modal - Mobile Only */}
       {generatedPost && (
-        <div className="post-overlay" onClick={closePost}>
+        <div className="post-overlay mobile-only" onClick={closePost}>
           <div className="post-container" onClick={(e) => e.stopPropagation()}>
             <div className="post-header">
               <h3>Instagram Post Preview</h3>
