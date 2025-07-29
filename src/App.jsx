@@ -673,6 +673,28 @@ function App() {
     setSelectedTextElement(elementType)
   }
 
+  // Touch event handlers for mobile
+  const handleTextTouchStart = (e, elementType) => {
+    // Don't allow dragging of main stats or when editing player name
+    if (elementType === 'mainStats' || (elementType === 'playerName' && isEditingPlayerName)) return
+    
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const touch = e.touches[0]
+    const rect = e.currentTarget.getBoundingClientRect()
+    const containerRect = e.currentTarget.closest('.ig-post').getBoundingClientRect()
+    
+    setIsDraggingText(elementType)
+    setDragOffset({
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top
+    })
+    
+    // Select the element when starting to drag
+    setSelectedTextElement(elementType)
+  }
+
   const handleTextMouseMove = (e) => {
     if (!isDraggingText) return
     
@@ -699,7 +721,45 @@ function App() {
     }))
   }
 
+  const handleTextTouchMove = (e) => {
+    if (!isDraggingText) return
+    
+    e.preventDefault()
+    const touch = e.touches[0]
+    const container = document.querySelector('.ig-post')
+    if (!container) return
+    
+    const containerRect = container.getBoundingClientRect()
+    const newX = touch.clientX - containerRect.left - dragOffset.x
+    const newY = touch.clientY - containerRect.top - dragOffset.y
+    
+    // More generous bounds to allow full horizontal and vertical movement
+    const minX = 0
+    const minY = 0
+    const maxX = containerRect.width - 50  // Leave some margin but allow more movement
+    const maxY = containerRect.height - 50 // Leave some margin but allow more movement
+    
+    const constrainedX = Math.max(minX, Math.min(newX, maxX))
+    const constrainedY = Math.max(minY, Math.min(newY, maxY))
+    
+    setTextPositions(prev => ({
+      ...prev,
+      [isDraggingText]: { x: constrainedX, y: constrainedY }
+    }))
+  }
+
   const handleTextMouseUp = () => {
+    if (isDraggingText) {
+      const elementName = isDraggingText === 'playerName' ? 'Player Name' : 
+                         isDraggingText === 'gameInfo' ? 'Game Info' : 'Main Stats'
+      const position = textPositions[isDraggingText]
+      addToEditHistory('Text Repositioned', `${elementName} moved to (${Math.round(position.x)}, ${Math.round(position.y)})`)
+    }
+    setIsDraggingText(null)
+    setDragOffset({ x: 0, y: 0 })
+  }
+
+  const handleTextTouchEnd = () => {
     if (isDraggingText) {
       const elementName = isDraggingText === 'playerName' ? 'Player Name' : 
                          isDraggingText === 'gameInfo' ? 'Game Info' : 'Main Stats'
@@ -1184,6 +1244,8 @@ Total Edits: ${editHistory.length}
                   onMouseMove={handleTextMouseMove}
                   onMouseUp={handleTextMouseUp}
                   onMouseLeave={handleTextMouseUp}
+                  onTouchMove={handleTextTouchMove}
+                  onTouchEnd={handleTextTouchEnd}
                 >
                   <div 
                     className="ig-post-background"
@@ -1212,6 +1274,7 @@ Total Edits: ${editHistory.length}
                         ...getTextStyle('playerName')
                       }}
                       onMouseDown={(e) => handleTextMouseDown(e, 'playerName')}
+                      onTouchStart={(e) => handleTextTouchStart(e, 'playerName')}
                       onClick={() => selectTextElement('playerName')}
                       onDoubleClick={startEditingPlayerName}
                       title="Click to edit, drag to move, double-click to edit text"
@@ -1254,6 +1317,7 @@ Total Edits: ${editHistory.length}
                         ...getTextStyle('gameInfo')
                       }}
                       onMouseDown={(e) => handleTextMouseDown(e, 'gameInfo')}
+                      onTouchStart={(e) => handleTextTouchStart(e, 'gameInfo')}
                       onClick={() => selectTextElement('gameInfo')}
                       title="Click to edit, drag to move"
                     >
