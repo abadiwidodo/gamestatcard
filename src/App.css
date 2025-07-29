@@ -1595,7 +1595,7 @@ body {
 
 .ig-quote-content {
   text-align: center;
-  padding: 1.5rem;
+  padding: 0.5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1653,4 +1653,25 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+.ig-quote-category:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: -4px -8px;
+}
+
+.ig-quote-category.selected {
+  background: rgba(59, 130, 246, 0.2);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  outline: 2px solid var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }

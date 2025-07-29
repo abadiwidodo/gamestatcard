@@ -37,7 +37,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('stats') // 'news', 'quote', 'stats'
   
   // WYSIWYG Editor State
-  const [selectedTextElement, setSelectedTextElement] = useState(null) // 'playerName', 'gameInfo', or 'quoteText'
+  const [selectedTextElement, setSelectedTextElement] = useState(null) // 'playerName', 'gameInfo', 'quoteText', or 'quoteCategory'
   const [isEditingPlayerName, setIsEditingPlayerName] = useState(false)
   const [editPlayerNameValue, setEditPlayerNameValue] = useState('')
   const [textStyles, setTextStyles] = useState({
@@ -61,6 +61,13 @@ function App() {
       fontWeight: 500,
       fontStyle: 'italic',
       textDecoration: 'none'
+    },
+    quoteCategory: {
+      fontFamily: 'Inter',
+      fontSize: 14,
+      fontWeight: 600,
+      fontStyle: 'normal',
+      textDecoration: 'none'
     }
   })
   
@@ -69,7 +76,8 @@ function App() {
     playerName: { x: 20, y: 20 },
     gameInfo: { x: 20, y: 60 },
     mainStats: { x: 20, y: 300 },
-    quoteText: { x: 20, y: 100 }
+    quoteText: { x: 20, y: 100 },
+    quoteCategory: { x: 20, y: 140 }
   })
   const [isDraggingText, setIsDraggingText] = useState(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -761,7 +769,9 @@ function App() {
     }))
     
     const elementName = selectedTextElement === 'playerName' ? 'Player Name' : 
-                       selectedTextElement === 'gameInfo' ? 'Game Info' : 'Quote Text'
+                       selectedTextElement === 'gameInfo' ? 'Game Info' : 
+                       selectedTextElement === 'quoteText' ? 'Quote Text' :
+                       selectedTextElement === 'quoteCategory' ? 'Quote Category' : 'Text'
     addToEditHistory(`${elementName} Style Changed`, `${property}: ${value}`)
   }
 
@@ -1595,15 +1605,28 @@ Total Edits: ${editHistory.length}
                       {/* Quote Post Display */}
                       {generatedPost.quote && (
                         <div className="ig-quote-content">
-                          <blockquote 
+                          <div 
                             className={`ig-quote-text selectable-text ${selectedTextElement === 'quoteText' ? 'selected' : ''}`}
                             style={getTextStyle('quoteText')}
-                            onClick={() => selectTextElement('quoteText')}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              selectTextElement('quoteText')
+                            }}
                             title="Click to edit style"
                           >
-                            "{generatedPost.quote}"
-                          </blockquote>
-                          <div className="ig-quote-category">{generatedPost.quoteCategory}</div>
+                            {generatedPost.quote}
+                          </div>
+                          <div 
+                            className={`ig-quote-category selectable-text ${selectedTextElement === 'quoteCategory' ? 'selected' : ''}`}
+                            style={getTextStyle('quoteCategory')}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              selectTextElement('quoteCategory')
+                            }}
+                            title="Click to edit style"
+                          >
+                            {generatedPost.quoteCategory}
+                          </div>
                         </div>
                       )}
                       
