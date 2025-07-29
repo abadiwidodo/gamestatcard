@@ -58,7 +58,7 @@ function App() {
   const [textPositions, setTextPositions] = useState({
     playerName: { x: 20, y: 20 },
     gameInfo: { x: 20, y: 60 },
-    mainStats: { x: 0, y: 300 }
+    mainStats: { x: 20, y: 300 }
   })
   const [isDraggingText, setIsDraggingText] = useState(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -297,7 +297,7 @@ function App() {
     setTextPositions({
       playerName: { x: 20, y: 20 },
       gameInfo: { x: 20, y: 60 },
-      mainStats: { x: 0, y: 300 }
+      mainStats: { x: 20, y: 300 }
     })
     setEditHistory([]) // Reset edit history for new post
     addToEditHistory('Post Generated', `Created IG post for ${playerName} - ${game.date}`)
@@ -612,6 +612,9 @@ function App() {
 
   // Freestyle text positioning functions
   const handleTextMouseDown = (e, elementType) => {
+    // Don't allow dragging of main stats
+    if (elementType === 'mainStats') return
+    
     e.preventDefault()
     e.stopPropagation()
     
@@ -639,24 +642,14 @@ function App() {
     const newX = e.clientX - containerRect.left - dragOffset.x
     const newY = e.clientY - containerRect.top - dragOffset.y
     
-    // Handle different movement constraints based on element type
-    let constrainedX, constrainedY
+    // More generous bounds to allow full horizontal and vertical movement
+    const minX = 0
+    const minY = 0
+    const maxX = containerRect.width - 50  // Leave some margin but allow more movement
+    const maxY = containerRect.height - 50 // Leave some margin but allow more movement
     
-    if (isDraggingText === 'mainStats') {
-      // Main stats: full width, only vertical movement
-      constrainedX = 0 // Always full width
-      const minY = 0
-      const maxY = containerRect.height - 120 // Account for stats height
-      constrainedY = Math.max(minY, Math.min(newY, maxY))
-    } else {
-      // Text elements: free movement in both directions
-      const minX = 0
-      const minY = 0
-      const maxX = containerRect.width - 50
-      const maxY = containerRect.height - 50
-      constrainedX = Math.max(minX, Math.min(newX, maxX))
-      constrainedY = Math.max(minY, Math.min(newY, maxY))
-    }
+    const constrainedX = Math.max(minX, Math.min(newX, maxX))
+    const constrainedY = Math.max(minY, Math.min(newY, maxY))
     
     setTextPositions(prev => ({
       ...prev,
@@ -1170,17 +1163,9 @@ Total Edits: ${editHistory.length}
                     
                     {/* Stats display */}
                     <div 
-                      className={`ig-stats-display freestyle-text-element ${selectedTextElement === 'mainStats' ? 'selected' : ''}`}
-                      style={{
-                        position: 'absolute',
-                        left: `${textPositions.mainStats.x}px`,
-                        top: `${textPositions.mainStats.y}px`,
-                        cursor: isDraggingText === 'mainStats' ? 'grabbing' : 'grab',
-                        zIndex: selectedTextElement === 'mainStats' ? 10 : 5
-                      }}
-                      onMouseDown={(e) => handleTextMouseDown(e, 'mainStats')}
+                      className={`ig-stats-display ${selectedTextElement === 'mainStats' ? 'selected' : ''}`}
                       onClick={() => selectTextElement('mainStats')}
-                      title="Click to edit, drag to move"
+                      title="Click to edit"
                     >
                       <div className="ig-main-stats">
                         <div className="ig-stat-item">

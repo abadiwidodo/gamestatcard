@@ -997,39 +997,24 @@ body {
   left: 1rem;
   right: 1rem;
   color: white;
-  /* Remove these for freestyle positioning */
-  position: static;
-  bottom: auto;
-  left: auto;
+  /* Center the stats display */
+  left: 50%;
   right: auto;
+  bottom: 1rem;
+  transform: translateX(-50%);
   width: 280px;
 }
 
-.ig-stats-display.freestyle-text-element {
-  position: absolute !important;
-  bottom: auto !important;
-  left: auto !important;
-  right: auto !important;
-  width: 100% !important; /* Full width */
-  padding: 4px;
-  transition: all 0.2s ease;
-  border-radius: 8px;
-}
-
-.ig-stats-display.freestyle-text-element:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: scale(1.02);
-}
-
-.ig-stats-display.freestyle-text-element.selected {
+.ig-stats-display.selected {
   background: rgba(var(--primary-rgb), 0.2);
   box-shadow: 0 0 0 2px var(--primary);
+  border-radius: 8px;
+  padding: 4px;
 }
 
 .ig-main-stats {
   display: flex;
   justify-content: space-around;
-  background: rgba(0,0,0,0.4);
   padding: 1rem;
   border-radius: 8px;
 }
@@ -1251,13 +1236,13 @@ body {
   }
 
   /* Stats display mobile adjustments */
-  .ig-stats-display.freestyle-text-element {
-    width: 100% !important; /* Full width on mobile too */
-    padding: 6px;
+  .ig-stats-display {
+    width: 260px;
+    bottom: 1rem;
   }
 
-  .ig-stats-display.freestyle-text-element:hover {
-    transform: scale(1.01);
+  .ig-stats-display.selected {
+    padding: 6px;
   }
 }
 
