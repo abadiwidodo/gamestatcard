@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Roboto:wght@100;300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@100;300;400;700;900&family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Oswald:wght@200;300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800;900&family=Source+Sans+Pro:wght@200;300;400;600;700;900&family=Merriweather:wght@300;400;700;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 :root {
   --background: #f7f9fc;
@@ -421,6 +421,16 @@ body {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Font preview styling for dropdown */
+.font-preview-select {
+  min-width: 140px;
+}
+
+.font-preview-select option {
+  padding: 8px 12px;
+  font-size: 14px;
 }
 
 .toolbar-button {
@@ -1015,7 +1025,7 @@ body {
 .ig-main-stats {
   display: flex;
   justify-content: space-around;
-  padding: 1rem;
+  padding: 0;
   border-radius: 8px;
 }
 

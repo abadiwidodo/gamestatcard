@@ -37,6 +37,8 @@ function App() {
   
   // WYSIWYG Editor State
   const [selectedTextElement, setSelectedTextElement] = useState(null) // 'playerName' or 'gameInfo'
+  const [isEditingPlayerName, setIsEditingPlayerName] = useState(false)
+  const [editPlayerNameValue, setEditPlayerNameValue] = useState('')
   const [textStyles, setTextStyles] = useState({
     playerName: {
       fontFamily: 'Inter',
@@ -299,6 +301,10 @@ function App() {
       gameInfo: { x: 20, y: 60 },
       mainStats: { x: 20, y: 300 }
     })
+    // Reset editing states
+    setIsEditingPlayerName(false)
+    setEditPlayerNameValue('')
+    setSelectedTextElement(null)
     setEditHistory([]) // Reset edit history for new post
     addToEditHistory('Post Generated', `Created IG post for ${playerName} - ${game.date}`)
   }
@@ -585,6 +591,10 @@ function App() {
   // WYSIWYG Editor Functions
   const selectTextElement = (elementType) => {
     setSelectedTextElement(elementType)
+    if (elementType === 'playerName' && !isEditingPlayerName) {
+      // Double-click or specific action needed to start editing
+      // For now, just selecting doesn't start editing automatically
+    }
   }
 
   const updateTextStyle = (property, value) => {
@@ -610,10 +620,42 @@ function App() {
     return textStyles[elementType] || textStyles.playerName
   }
 
+  // Player name editing functions
+  const startEditingPlayerName = () => {
+    setIsEditingPlayerName(true)
+    setEditPlayerNameValue(generatedPost.playerName)
+    setSelectedTextElement('playerName')
+  }
+
+  const savePlayerNameEdit = () => {
+    if (editPlayerNameValue.trim()) {
+      setGeneratedPost(prev => ({
+        ...prev,
+        playerName: editPlayerNameValue.trim()
+      }))
+      addToEditHistory('Player Name Changed', `Changed from "${generatedPost.playerName}" to "${editPlayerNameValue.trim()}"`)
+    }
+    setIsEditingPlayerName(false)
+    setEditPlayerNameValue('')
+  }
+
+  const cancelPlayerNameEdit = () => {
+    setIsEditingPlayerName(false)
+    setEditPlayerNameValue('')
+  }
+
+  const handlePlayerNameKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      savePlayerNameEdit()
+    } else if (e.key === 'Escape') {
+      cancelPlayerNameEdit()
+    }
+  }
+
   // Freestyle text positioning functions
   const handleTextMouseDown = (e, elementType) => {
-    // Don't allow dragging of main stats
-    if (elementType === 'mainStats') return
+    // Don't allow dragging of main stats or when editing player name
+    if (elementType === 'mainStats' || (elementType === 'playerName' && isEditingPlayerName)) return
     
     e.preventDefault()
     e.stopPropagation()
@@ -1037,23 +1079,55 @@ Total Edits: ${editHistory.length}
               <div className={`wysiwyg-toolbar ${!selectedTextElement ? 'hidden' : ''}`}>
                 {selectedTextElement && (
                   <>
+                    {selectedTextElement === 'playerName' && (
+                      <div className="toolbar-group">
+                        <button 
+                          onClick={startEditingPlayerName}
+                          className="toolbar-button"
+                          title="Edit Player Name"
+                        >
+                          ✏️ Edit Text
+                        </button>
+                      </div>
+                    )}
+                    
                     <div className="toolbar-group">
                       <Type size={16} className="toolbar-icon" />
                       <select 
                         value={textStyles[selectedTextElement]?.fontFamily || 'Inter'}
                         onChange={(e) => updateTextStyle('fontFamily', e.target.value)}
-                        className="toolbar-select"
+                        className="toolbar-select font-preview-select"
                       >
-                        <option value="Inter">Inter</option>
-                        <option value="Arial">Arial</option>
-                        <option value="Helvetica">Helvetica</option>
-                        <option value="Georgia">Georgia</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Courier New">Courier New</option>
-                        <option value="Verdana">Verdana</option>
-                        <option value="Impact">Impact</option>
-                        <option value="Trebuchet MS">Trebuchet MS</option>
-                        <option value="Arial Black">Arial Black</option>
+                        <option value="Inter" style={{fontFamily: 'Inter'}}>Inter</option>
+                        <option value="Arial" style={{fontFamily: 'Arial'}}>Arial</option>
+                        <option value="Helvetica" style={{fontFamily: 'Helvetica'}}>Helvetica</option>
+                        <option value="Georgia" style={{fontFamily: 'Georgia'}}>Georgia</option>
+                        <option value="Times New Roman" style={{fontFamily: 'Times New Roman'}}>Times New Roman</option>
+                        <option value="Courier New" style={{fontFamily: 'Courier New'}}>Courier New</option>
+                        <option value="Verdana" style={{fontFamily: 'Verdana'}}>Verdana</option>
+                        <option value="Impact" style={{fontFamily: 'Impact'}}>Impact</option>
+                        <option value="Trebuchet MS" style={{fontFamily: 'Trebuchet MS'}}>Trebuchet MS</option>
+                        <option value="Arial Black" style={{fontFamily: 'Arial Black'}}>Arial Black</option>
+                        <option value="Comic Sans MS" style={{fontFamily: 'Comic Sans MS'}}>Comic Sans MS</option>
+                        <option value="Tahoma" style={{fontFamily: 'Tahoma'}}>Tahoma</option>
+                        <option value="Palatino" style={{fontFamily: 'Palatino'}}>Palatino</option>
+                        <option value="Book Antiqua" style={{fontFamily: 'Book Antiqua'}}>Book Antiqua</option>
+                        <option value="Century Gothic" style={{fontFamily: 'Century Gothic'}}>Century Gothic</option>
+                        <option value="Lucida Console" style={{fontFamily: 'Lucida Console'}}>Lucida Console</option>
+                        <option value="Franklin Gothic Medium" style={{fontFamily: 'Franklin Gothic Medium'}}>Franklin Gothic Medium</option>
+                        <option value="Calibri" style={{fontFamily: 'Calibri'}}>Calibri</option>
+                        <option value="Cambria" style={{fontFamily: 'Cambria'}}>Cambria</option>
+                        <option value="Consolas" style={{fontFamily: 'Consolas'}}>Consolas</option>
+                        <option value="Segoe UI" style={{fontFamily: 'Segoe UI'}}>Segoe UI</option>
+                        <option value="Roboto" style={{fontFamily: 'Roboto'}}>Roboto</option>
+                        <option value="Open Sans" style={{fontFamily: 'Open Sans'}}>Open Sans</option>
+                        <option value="Lato" style={{fontFamily: 'Lato'}}>Lato</option>
+                        <option value="Montserrat" style={{fontFamily: 'Montserrat'}}>Montserrat</option>
+                        <option value="Oswald" style={{fontFamily: 'Oswald'}}>Oswald</option>
+                        <option value="Playfair Display" style={{fontFamily: 'Playfair Display'}}>Playfair Display</option>
+                        <option value="Source Sans Pro" style={{fontFamily: 'Source Sans Pro'}}>Source Sans Pro</option>
+                        <option value="Merriweather" style={{fontFamily: 'Merriweather'}}>Merriweather</option>
+                        <option value="Poppins" style={{fontFamily: 'Poppins'}}>Poppins</option>
                       </select>
                     </div>
                     
@@ -1139,9 +1213,34 @@ Total Edits: ${editHistory.length}
                       }}
                       onMouseDown={(e) => handleTextMouseDown(e, 'playerName')}
                       onClick={() => selectTextElement('playerName')}
-                      title="Click to edit, drag to move"
+                      onDoubleClick={startEditingPlayerName}
+                      title="Click to edit, drag to move, double-click to edit text"
                     >
-                      {generatedPost.playerName}
+                      {isEditingPlayerName ? (
+                        <input
+                          type="text"
+                          value={editPlayerNameValue}
+                          onChange={(e) => setEditPlayerNameValue(e.target.value)}
+                          onKeyDown={handlePlayerNameKeyPress}
+                          onBlur={savePlayerNameEdit}
+                          autoFocus
+                          style={{
+                            background: 'transparent',
+                            border: '2px solid var(--primary)',
+                            borderRadius: '4px',
+                            padding: '2px 6px',
+                            color: 'inherit',
+                            fontFamily: 'inherit',
+                            fontSize: 'inherit',
+                            fontWeight: 'inherit',
+                            fontStyle: 'inherit',
+                            outline: 'none',
+                            minWidth: '200px'
+                          }}
+                        />
+                      ) : (
+                        generatedPost.playerName
+                      )}
                     </div>
 
                     <div
