@@ -34,9 +34,10 @@ function App() {
   const [quickSearchLoading, setQuickSearchLoading] = useState(false)
   const [selectedQuickGame, setSelectedQuickGame] = useState(null)
   const [postFormat, setPostFormat] = useState('instagram-square') // 'instagram-square', 'instagram-reel', 'tiktok'
+  const [activeTab, setActiveTab] = useState('stats') // 'news', 'quote', 'stats'
   
   // WYSIWYG Editor State
-  const [selectedTextElement, setSelectedTextElement] = useState(null) // 'playerName' or 'gameInfo'
+  const [selectedTextElement, setSelectedTextElement] = useState(null) // 'playerName', 'gameInfo', or 'quoteText'
   const [isEditingPlayerName, setIsEditingPlayerName] = useState(false)
   const [editPlayerNameValue, setEditPlayerNameValue] = useState('')
   const [textStyles, setTextStyles] = useState({
@@ -53,6 +54,13 @@ function App() {
       fontWeight: 400,
       fontStyle: 'normal',
       textDecoration: 'none'
+    },
+    quoteText: {
+      fontFamily: 'Inter',
+      fontSize: 24,
+      fontWeight: 500,
+      fontStyle: 'italic',
+      textDecoration: 'none'
     }
   })
   
@@ -60,7 +68,8 @@ function App() {
   const [textPositions, setTextPositions] = useState({
     playerName: { x: 20, y: 20 },
     gameInfo: { x: 20, y: 60 },
-    mainStats: { x: 20, y: 300 }
+    mainStats: { x: 20, y: 300 },
+    quoteText: { x: 20, y: 100 }
   })
   const [isDraggingText, setIsDraggingText] = useState(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -77,6 +86,68 @@ function App() {
     { id: 6, name: 'Jayson Tatum', team: 'Boston Celtics', position: 'SF' },
     { id: 7, name: 'Joel Embiid', team: 'Philadelphia 76ers', position: 'C' },
     { id: 8, name: 'Nikola Jokić', team: 'Denver Nuggets', position: 'C' },
+  ]
+
+  // Mock player news data
+  const mockPlayerNews = [
+    {
+      id: 1,
+      playerName: 'LeBron James',
+      headline: 'LeBron James Becomes All-Time Scoring Leader',
+      summary: 'Lakers star surpasses Kareem Abdul-Jabbar\'s long-standing record with 38,388 career points',
+      date: '2024-01-25',
+      source: 'ESPN'
+    },
+    {
+      id: 2,
+      playerName: 'Stephen Curry',
+      headline: 'Curry Hits 3,000th Career Three-Pointer',
+      summary: 'Warriors guard reaches historic milestone, extending his record as the greatest shooter of all time',
+      date: '2024-01-24',
+      source: 'NBA.com'
+    },
+    {
+      id: 3,
+      playerName: 'Giannis Antetokounmpo',
+      headline: 'Greek Freak Signs Extension with Bucks',
+      summary: 'Two-time MVP commits to Milwaukee with a massive contract extension through 2027',
+      date: '2024-01-23',
+      source: 'The Athletic'
+    }
+  ]
+
+  // Mock inspirational quotes
+  const mockQuotes = [
+    {
+      id: 1,
+      playerName: 'LeBron James',
+      quote: 'I like criticism. It makes you strong.',
+      category: 'Motivation'
+    },
+    {
+      id: 2,
+      playerName: 'Stephen Curry',
+      quote: 'Success is not an accident. Success is actually a choice.',
+      category: 'Success'
+    },
+    {
+      id: 3,
+      playerName: 'Giannis Antetokounmpo',
+      quote: 'Some days you are the best player on the court, some days you are not. But every day you should give your maximum.',
+      category: 'Dedication'
+    },
+    {
+      id: 4,
+      playerName: 'Kobe Bryant',
+      quote: 'The most important thing is to try and inspire people so that they can be great at whatever they want to do.',
+      category: 'Inspiration'
+    },
+    {
+      id: 5,
+      playerName: 'Michael Jordan',
+      quote: 'I\'ve failed over and over and over again in my life. And that is why I succeed.',
+      category: 'Perseverance'
+    }
   ]
 
   // Mock IG posts data with #ae5history hashtag
@@ -299,7 +370,8 @@ function App() {
     setTextPositions({
       playerName: { x: 20, y: 20 },
       gameInfo: { x: 20, y: 60 },
-      mainStats: { x: 20, y: 300 }
+      mainStats: { x: 20, y: 300 },
+      quoteText: { x: 20, y: 100 }
     })
     // Reset editing states
     setIsEditingPlayerName(false)
@@ -307,6 +379,76 @@ function App() {
     setSelectedTextElement(null)
     setEditHistory([]) // Reset edit history for new post
     addToEditHistory('Post Generated', `Created IG post for ${playerName} - ${game.date}`)
+  }
+
+  // Generate news post from news tab
+  const generateNewsPost = (news) => {
+    const newsPost = {
+      playerName: news.playerName,
+      date: news.date,
+      opponent: 'NEWS UPDATE',
+      points: 0,
+      rebounds: 0,
+      assists: 0,
+      steals: 0,
+      blocks: 0,
+      fgPercentage: '0.000',
+      minutes: 0,
+      newsHeadline: news.headline,
+      newsSummary: news.summary
+    }
+    setGeneratedPost(newsPost)
+    // Reset positions and states
+    setGameInfoMode('both')
+    setGameInfoPosition('header')
+    setPlayerNamePosition('header')
+    setElementOrder(['player', 'game'])
+    setTextPositions({
+      playerName: { x: 20, y: 20 },
+      gameInfo: { x: 20, y: 60 },
+      mainStats: { x: 20, y: 300 },
+      quoteText: { x: 20, y: 100 }
+    })
+    setIsEditingPlayerName(false)
+    setEditPlayerNameValue('')
+    setSelectedTextElement(null)
+    setEditHistory([])
+    addToEditHistory('News Post Generated', `Created news post: ${news.headline}`)
+  }
+
+  // Generate quote post from quote tab
+  const generateQuotePost = (quoteItem) => {
+    const quotePost = {
+      playerName: quoteItem.playerName,
+      date: new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }),
+      opponent: 'MOTIVATION',
+      points: 0,
+      rebounds: 0,
+      assists: 0,
+      steals: 0,
+      blocks: 0,
+      fgPercentage: '0.000',
+      minutes: 0,
+      quote: quoteItem.quote,
+      quoteCategory: quoteItem.playerName // Use player name instead of category
+    }
+    setGeneratedPost(quotePost)
+    // Reset positions and states
+    setGameInfoMode('both')
+    setGameInfoPosition('header')
+    setPlayerNamePosition('header')
+    setElementOrder(['player', 'game'])
+    setTextPositions({
+      playerName: { x: 20, y: 20 },
+      gameInfo: { x: 20, y: 60 },
+      mainStats: { x: 20, y: 300 },
+      quoteText: { x: 20, y: 100 }
+    })
+    setIsEditingPlayerName(false)
+    setEditPlayerNameValue('')
+    setSelectedTextElement(null)
+    setEditHistory([])
+    addToEditHistory('Quote Post Generated', `Created quote post: ${quoteItem.playerName}`)
   }
 
   // Function to track edits
@@ -346,6 +488,16 @@ function App() {
   const getGameInfoContent = () => {
     if (!generatedPost) return ''
     
+    // Handle different post types
+    if (generatedPost.newsHeadline) {
+      return `📰 ${generatedPost.newsHeadline}`
+    }
+    
+    if (generatedPost.quote) {
+      return `💬 ${generatedPost.quoteCategory || 'MOTIVATION'}`
+    }
+    
+    // Default stats display
     switch (gameInfoMode) {
       case 'date':
         return generatedPost.date
@@ -608,7 +760,8 @@ function App() {
       }
     }))
     
-    const elementName = selectedTextElement === 'playerName' ? 'Player Name' : 'Game Info'
+    const elementName = selectedTextElement === 'playerName' ? 'Player Name' : 
+                       selectedTextElement === 'gameInfo' ? 'Game Info' : 'Quote Text'
     addToEditHistory(`${elementName} Style Changed`, `${property}: ${value}`)
   }
 
@@ -617,7 +770,14 @@ function App() {
   }
 
   const getTextStyle = (elementType) => {
-    return textStyles[elementType] || textStyles.playerName
+    const styles = textStyles[elementType] || textStyles.playerName
+    return {
+      fontFamily: styles.fontFamily,
+      fontSize: `${styles.fontSize}px`,
+      fontWeight: styles.fontWeight,
+      fontStyle: styles.fontStyle,
+      textDecoration: styles.textDecoration
+    }
   }
 
   // Player name editing functions
@@ -928,92 +1088,182 @@ Total Edits: ${editHistory.length}
       <main className="main-content">
         <div className="main-layout">
           <div className="generator-section">
-            <div className="card">
-              <div className="quick-generator-container">
-                <div className="form-group">
-                  <label htmlFor="quick-search">Player Name</label>
-                  <div className="quick-search-box">
-                    <input
-                      id="quick-search"
-                      type="text"
-                      value={quickSearchTerm}
-                      onChange={(e) => setQuickSearchTerm(e.target.value)}
-                      onKeyPress={handleQuickKeyPress}
-                      placeholder="e.g., LeBron James"
-                      className="input"
-                      disabled={quickSearchLoading}
-                    />
-                    <button 
-                      onClick={handleQuickSearch}
-                      disabled={quickSearchLoading || !quickSearchTerm.trim()}
-                      className="button button-primary"
-                      aria-label="Search"
-                    >
-                      <Search size={18} />
-                    </button>
-                  </div>
-                </div>
+            {/* Tab Navigation */}
+            <div className="tabs-container">
+              <div className="tabs-nav">
+                <button 
+                  className={`tab-button ${activeTab === 'news' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('news')}
+                >
+                  📰 PLAYER NEWS
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'quote' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('quote')}
+                >
+                  💬 QUOTE
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'stats' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('stats')}
+                >
+                  📊 STATS
+                </button>
+              </div>
 
-                {quickSearchResults.length > 0 && (
-                  <div className="form-group">
-                    <label>Select Game</label>
-                    <div className="quick-games-grid">
-                      {quickSearchResults.map((game, index) => (
-                        <div 
-                          key={index} 
-                          className={`quick-game-box ${selectedQuickGame?.game === game.game ? 'selected' : ''}`}
-                          onClick={() => setSelectedQuickGame(game)}
-                        >
-                          <div className="quick-game-date">{game.date}</div>
-                          <div className="quick-game-opponent">{game.opponent}</div>
-                          <div className="quick-game-stats">
-                            <span>{game.points}pts</span>
-                            <span>{game.rebounds}reb</span>
-                            <span>{game.assists}ast</span>
+              {/* Tab Content */}
+              <div className="tab-content">
+                {/* Player News Tab */}
+                {activeTab === 'news' && (
+                  <div className="card">
+                    <div className="card-header">
+                      <h2>Latest Player News</h2>
+                      <p>Stay updated with the latest NBA player news and updates.</p>
+                    </div>
+                    <div className="news-grid">
+                      {mockPlayerNews.map(news => (
+                        <div key={news.id} className="news-card">
+                          <div className="news-header">
+                            <h3 className="news-headline">{news.headline}</h3>
+                            <div className="news-meta">
+                              <span className="news-player">{news.playerName}</span>
+                              <span className="news-date">{news.date}</span>
+                              <span className="news-source">{news.source}</span>
+                            </div>
                           </div>
+                          <p className="news-summary">{news.summary}</p>
+                          <button 
+                            className="button button-secondary news-generate-btn"
+                            onClick={() => generateNewsPost(news)}
+                          >
+                            Generate News Card
+                          </button>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
 
-                <div className="form-group">
-                  <label>Post Format</label>
-                  <div className="format-options">
-                    <button 
-                      className={`format-option ${postFormat === 'instagram-square' ? 'selected' : ''}`}
-                      onClick={() => setPostFormat('instagram-square')}
-                    >
-                      <Instagram size={20} />
-                      <span>IG Square</span>
-                    </button>
-                    <button 
-                      className={`format-option ${postFormat === 'instagram-reel' ? 'selected' : ''}`}
-                      onClick={() => setPostFormat('instagram-reel')}
-                    >
-                      <Instagram size={20} />
-                      <span>IG Reel</span>
-                    </button>
-                    <button 
-                      className={`format-option ${postFormat === 'tiktok' ? 'selected' : ''}`}
-                      onClick={() => setPostFormat('tiktok')}
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-                      </svg>
-                      <span>TikTok</span>
-                    </button>
+                {/* Quote Tab */}
+                {activeTab === 'quote' && (
+                  <div className="card">
+                    <div className="card-header">
+                      <h2>Inspirational Quotes</h2>
+                      <p>Create motivational cards with powerful quotes from NBA legends.</p>
+                    </div>
+                    <div className="quotes-grid">
+                      {mockQuotes.map(quoteItem => (
+                        <div key={quoteItem.id} className="quote-card">
+                          <div className="quote-content">
+                            <blockquote className="quote-text">"{quoteItem.quote}"</blockquote>
+                            <div className="quote-attribution">
+                              <span className="quote-author">— {quoteItem.playerName}</span>
+                              <span className="quote-category">{quoteItem.category}</span>
+                            </div>
+                          </div>
+                          <button 
+                            className="button button-secondary quote-generate-btn"
+                            onClick={() => generateQuotePost(quoteItem)}
+                          >
+                            Generate Quote Card
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <button 
-                  onClick={handleQuickGenerate}
-                  disabled={!selectedQuickGame}
-                  className="button button-primary"
-                  style={{ width: '100%', marginTop: '1rem' }}
-                >
-                  GENERATE
-                </button>
+                {/* Stats Tab */}
+                {activeTab === 'stats' && (
+                  <div className="card">
+                    <div className="quick-generator-container">
+                      <div className="form-group">
+                        <label htmlFor="quick-search">Player Name</label>
+                        <div className="quick-search-box">
+                          <input
+                            id="quick-search"
+                            type="text"
+                            value={quickSearchTerm}
+                            onChange={(e) => setQuickSearchTerm(e.target.value)}
+                            onKeyPress={handleQuickKeyPress}
+                            placeholder="e.g., LeBron James"
+                            className="input"
+                            disabled={quickSearchLoading}
+                          />
+                          <button 
+                            onClick={handleQuickSearch}
+                            disabled={quickSearchLoading || !quickSearchTerm.trim()}
+                            className="button button-primary"
+                            aria-label="Search"
+                          >
+                            <Search size={18} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {quickSearchResults.length > 0 && (
+                        <div className="form-group">
+                          <label>Select Game</label>
+                          <div className="quick-games-grid">
+                            {quickSearchResults.map((game, index) => (
+                              <div 
+                                key={index} 
+                                className={`quick-game-box ${selectedQuickGame?.game === game.game ? 'selected' : ''}`}
+                                onClick={() => setSelectedQuickGame(game)}
+                              >
+                                <div className="quick-game-date">{game.date}</div>
+                                <div className="quick-game-opponent">{game.opponent}</div>
+                                <div className="quick-game-stats">
+                                  <span>{game.points}pts</span>
+                                  <span>{game.rebounds}reb</span>
+                                  <span>{game.assists}ast</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="form-group">
+                        <label>Post Format</label>
+                        <div className="format-options">
+                          <button 
+                            className={`format-option ${postFormat === 'instagram-square' ? 'selected' : ''}`}
+                            onClick={() => setPostFormat('instagram-square')}
+                          >
+                            <Instagram size={20} />
+                            <span>IG Square</span>
+                          </button>
+                          <button 
+                            className={`format-option ${postFormat === 'instagram-reel' ? 'selected' : ''}`}
+                            onClick={() => setPostFormat('instagram-reel')}
+                          >
+                            <Instagram size={20} />
+                            <span>IG Reel</span>
+                          </button>
+                          <button 
+                            className={`format-option ${postFormat === 'tiktok' ? 'selected' : ''}`}
+                            onClick={() => setPostFormat('tiktok')}
+                          >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                            </svg>
+                            <span>TikTok</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={handleQuickGenerate}
+                        disabled={!selectedQuickGame}
+                        className="button button-primary"
+                        style={{ width: '100%', marginTop: '1rem' }}
+                      >
+                        GENERATE STATS CARD
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1262,67 +1512,71 @@ Total Edits: ${editHistory.length}
                       cursor: 'default'
                     }}
                   >
-                    {/* Freestyle positioned text elements */}
-                    <div
-                      className={`freestyle-text-element ${selectedTextElement === 'playerName' ? 'selected' : ''}`}
-                      style={{
-                        position: 'absolute',
-                        left: `${textPositions.playerName.x}px`,
-                        top: `${textPositions.playerName.y}px`,
-                        cursor: isDraggingText === 'playerName' ? 'grabbing' : 'grab',
-                        zIndex: selectedTextElement === 'playerName' ? 10 : 5,
-                        ...getTextStyle('playerName')
-                      }}
-                      onMouseDown={(e) => handleTextMouseDown(e, 'playerName')}
-                      onTouchStart={(e) => handleTextTouchStart(e, 'playerName')}
-                      onClick={() => selectTextElement('playerName')}
-                      onDoubleClick={startEditingPlayerName}
-                      title="Click to edit, drag to move, double-click to edit text"
-                    >
-                      {isEditingPlayerName ? (
-                        <input
-                          type="text"
-                          value={editPlayerNameValue}
-                          onChange={(e) => setEditPlayerNameValue(e.target.value)}
-                          onKeyDown={handlePlayerNameKeyPress}
-                          onBlur={savePlayerNameEdit}
-                          autoFocus
+                    {/* Freestyle positioned text elements - only show for stats posts */}
+                    {!generatedPost.newsHeadline && !generatedPost.quote && (
+                      <>
+                        <div
+                          className={`freestyle-text-element ${selectedTextElement === 'playerName' ? 'selected' : ''}`}
                           style={{
-                            background: 'transparent',
-                            border: '2px solid var(--primary)',
-                            borderRadius: '4px',
-                            padding: '2px 6px',
-                            color: 'inherit',
-                            fontFamily: 'inherit',
-                            fontSize: 'inherit',
-                            fontWeight: 'inherit',
-                            fontStyle: 'inherit',
-                            outline: 'none',
-                            minWidth: '200px'
+                            position: 'absolute',
+                            left: `${textPositions.playerName.x}px`,
+                            top: `${textPositions.playerName.y}px`,
+                            cursor: isDraggingText === 'playerName' ? 'grabbing' : 'grab',
+                            zIndex: selectedTextElement === 'playerName' ? 10 : 5,
+                            ...getTextStyle('playerName')
                           }}
-                        />
-                      ) : (
-                        generatedPost.playerName
-                      )}
-                    </div>
+                          onMouseDown={(e) => handleTextMouseDown(e, 'playerName')}
+                          onTouchStart={(e) => handleTextTouchStart(e, 'playerName')}
+                          onClick={() => selectTextElement('playerName')}
+                          onDoubleClick={startEditingPlayerName}
+                          title="Click to edit, drag to move, double-click to edit text"
+                        >
+                          {isEditingPlayerName ? (
+                            <input
+                              type="text"
+                              value={editPlayerNameValue}
+                              onChange={(e) => setEditPlayerNameValue(e.target.value)}
+                              onKeyDown={handlePlayerNameKeyPress}
+                              onBlur={savePlayerNameEdit}
+                              autoFocus
+                              style={{
+                                background: 'transparent',
+                                border: '2px solid var(--primary)',
+                                borderRadius: '4px',
+                                padding: '2px 6px',
+                                color: 'inherit',
+                                fontFamily: 'inherit',
+                                fontSize: 'inherit',
+                                fontWeight: 'inherit',
+                                fontStyle: 'inherit',
+                                outline: 'none',
+                                minWidth: '200px'
+                              }}
+                            />
+                          ) : (
+                            generatedPost.playerName
+                          )}
+                        </div>
 
-                    <div
-                      className={`freestyle-text-element ${selectedTextElement === 'gameInfo' ? 'selected' : ''}`}
-                      style={{
-                        position: 'absolute',
-                        left: `${textPositions.gameInfo.x}px`,
-                        top: `${textPositions.gameInfo.y}px`,
-                        cursor: isDraggingText === 'gameInfo' ? 'grabbing' : 'grab',
-                        zIndex: selectedTextElement === 'gameInfo' ? 10 : 5,
-                        ...getTextStyle('gameInfo')
-                      }}
-                      onMouseDown={(e) => handleTextMouseDown(e, 'gameInfo')}
-                      onTouchStart={(e) => handleTextTouchStart(e, 'gameInfo')}
-                      onClick={() => selectTextElement('gameInfo')}
-                      title="Click to edit, drag to move"
-                    >
-                      {getGameInfoContent()}
-                    </div>
+                        <div
+                          className={`freestyle-text-element ${selectedTextElement === 'gameInfo' ? 'selected' : ''}`}
+                          style={{
+                            position: 'absolute',
+                            left: `${textPositions.gameInfo.x}px`,
+                            top: `${textPositions.gameInfo.y}px`,
+                            cursor: isDraggingText === 'gameInfo' ? 'grabbing' : 'grab',
+                            zIndex: selectedTextElement === 'gameInfo' ? 10 : 5,
+                            ...getTextStyle('gameInfo')
+                          }}
+                          onMouseDown={(e) => handleTextMouseDown(e, 'gameInfo')}
+                          onTouchStart={(e) => handleTextTouchStart(e, 'gameInfo')}
+                          onClick={() => selectTextElement('gameInfo')}
+                          title="Click to edit, drag to move"
+                        >
+                          {getGameInfoContent()}
+                        </div>
+                      </>
+                    )}
                     
                     {/* Stats display */}
                     <div 
@@ -1330,36 +1584,64 @@ Total Edits: ${editHistory.length}
                       onClick={() => selectTextElement('mainStats')}
                       title="Click to edit"
                     >
-                      <div className="ig-main-stats">
-                        <div className="ig-stat-item">
-                          <span className="ig-stat-value">{generatedPost.points}</span>
-                          <span className="ig-stat-label">POINTS</span>
+                      {/* News Post Display */}
+                      {generatedPost.newsHeadline && (
+                        <div className="ig-news-content">
+                          <div className="ig-news-headline">{generatedPost.newsHeadline}</div>
+                          <div className="ig-news-summary">{generatedPost.newsSummary}</div>
                         </div>
-                        <div className="ig-stat-item">
-                          <span className="ig-stat-value">{generatedPost.rebounds}</span>
-                          <span className="ig-stat-label">REBOUNDS</span>
-                        </div>
-                        <div className="ig-stat-item">
-                          <span className="ig-stat-value">{generatedPost.assists}</span>
-                          <span className="ig-stat-label">ASSISTS</span>
-                        </div>
-                      </div>
+                      )}
                       
-                      {showSecondaryStats && (
-                        <div className="ig-secondary-stats" onClick={removeSecondaryStats}>
-                          <div className="ig-secondary-stat">
-                            <span>{generatedPost.steals} STL</span>
-                          </div>
-                          <div className="ig-secondary-stat">
-                            <span>{generatedPost.blocks} BLK</span>
-                          </div>
-                          <div className="ig-secondary-stat">
-                            <span>{generatedPost.fgPercentage} FG%</span>
-                          </div>
-                          <div className="ig-secondary-stat">
-                            <span>{generatedPost.minutes} MIN</span>
-                          </div>
+                      {/* Quote Post Display */}
+                      {generatedPost.quote && (
+                        <div className="ig-quote-content">
+                          <blockquote 
+                            className={`ig-quote-text selectable-text ${selectedTextElement === 'quoteText' ? 'selected' : ''}`}
+                            style={getTextStyle('quoteText')}
+                            onClick={() => selectTextElement('quoteText')}
+                            title="Click to edit style"
+                          >
+                            "{generatedPost.quote}"
+                          </blockquote>
+                          <div className="ig-quote-category">{generatedPost.quoteCategory}</div>
                         </div>
+                      )}
+                      
+                      {/* Stats Post Display */}
+                      {!generatedPost.newsHeadline && !generatedPost.quote && (
+                        <>
+                          <div className="ig-main-stats">
+                            <div className="ig-stat-item">
+                              <span className="ig-stat-value">{generatedPost.points}</span>
+                              <span className="ig-stat-label">POINTS</span>
+                            </div>
+                            <div className="ig-stat-item">
+                              <span className="ig-stat-value">{generatedPost.rebounds}</span>
+                              <span className="ig-stat-label">REBOUNDS</span>
+                            </div>
+                            <div className="ig-stat-item">
+                              <span className="ig-stat-value">{generatedPost.assists}</span>
+                              <span className="ig-stat-label">ASSISTS</span>
+                            </div>
+                          </div>
+                          
+                          {showSecondaryStats && (
+                            <div className="ig-secondary-stats" onClick={removeSecondaryStats}>
+                              <div className="ig-secondary-stat">
+                                <span>{generatedPost.steals} STL</span>
+                              </div>
+                              <div className="ig-secondary-stat">
+                                <span>{generatedPost.blocks} BLK</span>
+                              </div>
+                              <div className="ig-secondary-stat">
+                                <span>{generatedPost.fgPercentage} FG%</span>
+                              </div>
+                              <div className="ig-secondary-stat">
+                                <span>{generatedPost.minutes} MIN</span>
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
